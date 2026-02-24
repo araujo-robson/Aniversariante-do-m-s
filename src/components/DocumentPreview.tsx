@@ -61,18 +61,18 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
 
 
 
-          <h2
-            className="text-5xl tracking-widest uppercase"
-            style={{
-              fontFamily: "var(--font-display)",
-              background: theme.headerBg,
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text"
-            }}>
+          
 
-            {theme.name}
-          </h2>
+
+
+
+
+
+
+
+
+
+
           <div
             className="text-xs mt-1 font-semibold tracking-wide"
             style={{ color: theme.accentColor }}>
