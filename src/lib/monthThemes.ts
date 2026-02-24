@@ -5,6 +5,7 @@ export interface MonthTheme {
   primaryColor: string;
   secondaryColor: string;
   bgGradient: string;
+  bgImage?: string;
   cardBorder: string;
   headerBg: string;
   textColor: string;
@@ -33,6 +34,7 @@ export const monthThemes: Record<number, MonthTheme> = {
     primaryColor: "#7B2D8E",
     secondaryColor: "#FFD700",
     bgGradient: "linear-gradient(135deg, #F8F0FF 0%, #EDE0F8 50%, #F5EAFF 100%)",
+    bgImage: "fevereiro",
     cardBorder: "#7B2D8E",
     headerBg: "linear-gradient(135deg, #7B2D8E 0%, #9B59B6 50%, #7B2D8E 100%)",
     textColor: "#4A1259",
