@@ -44,7 +44,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
       {/* A4 Page */}
       <div className="a4-page print-page mx-auto p-6" style={{ background: theme.bgGradient }}>
         {/* Decorative corners */}
-        <div className="absolute top-3 left-4 text-2xl opacity-70 select-none">{theme.decorEmoji[0]}</div>
+        
         <div className="absolute top-3 right-4 text-2xl opacity-70 select-none">{theme.decorEmoji[1]}</div>
         <div className="absolute top-10 left-10 text-lg opacity-40 select-none">{theme.decorEmoji[2]}</div>
         <div className="absolute top-10 right-10 text-lg opacity-40 select-none">{theme.decorEmoji[3]}</div>
