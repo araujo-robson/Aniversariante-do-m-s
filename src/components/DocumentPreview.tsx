@@ -104,15 +104,15 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
 
         {/* Footer */}
         <div className="mt-auto pt-4 flex items-end justify-between">
-          <div
-            className="text-3xl tracking-wide"
-            style={{
-              fontFamily: "var(--font-display)",
-              color: theme.primaryColor
-            }}>
+          
 
-            PARABÉNS!
-          </div>
+
+
+
+
+
+
+
           <img
             src={logo}
             alt="Hospital São Lucas"
