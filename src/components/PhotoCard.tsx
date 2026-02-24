@@ -7,6 +7,8 @@ interface PhotoCardProps {
   borderColor: string;
   textColor: string;
   accentColor: string;
+  cardWidth?: number; // in mm
+  cardHeight?: number; // in mm
 }
 
 function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<string> {
@@ -34,7 +36,7 @@ function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<string> {
   });
 }
 
-const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor }: PhotoCardProps) => {
+const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, cardWidth, cardHeight }: PhotoCardProps) => {
   const [image, setImage] = useState<string | null>(null);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -86,7 +88,7 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor }: PhotoCard
   const restName = nameParts.slice(1).join(" ");
 
   return (
-    <div className="flex flex-col items-center" style={{ width: "100%" }}>
+    <div className="flex flex-col items-center" style={{ width: cardWidth ? `${cardWidth}mm` : "100%" }}>
       {/* Day */}
       <div
         className="font-bold mb-0"
@@ -107,7 +109,8 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor }: PhotoCard
           border: `2px solid ${borderColor}`,
           borderRadius: "5px",
           width: "100%",
-          aspectRatio: "3 / 3.5",
+          height: cardHeight ? `${cardHeight}mm` : undefined,
+          aspectRatio: cardHeight ? undefined : "3 / 3.5",
           cursor: croppedImage ? "default" : "pointer",
         }}
         onDrop={onDrop}
