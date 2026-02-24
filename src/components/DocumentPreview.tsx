@@ -58,7 +58,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
   return (
     <div className="min-h-screen py-8 px-4" style={{ background: "hsl(220 14% 92%)" }}>
       {/* Toolbar */}
-      <div className="no-print max-w-[297mm] mx-auto mb-4 flex items-center justify-between">
+      <div className="no-print max-w-[210mm] mx-auto mb-4 flex items-center justify-between">
         <Button variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft size={16} /> Voltar
         </Button>
