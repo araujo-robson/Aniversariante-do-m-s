@@ -50,18 +50,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
         <div className="absolute top-10 right-10 text-lg opacity-40 select-none">{theme.decorEmoji[3]}</div>
 
         {/* Header */}
-        <div className="text-center mb-4 pt-2">
-          
-
-
-
-
-
-
-
-
-
-          
+        
 
 
 
@@ -73,13 +62,24 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
 
 
 
-          <div
-            className="text-xs mt-1 font-semibold tracking-wide"
-            style={{ color: theme.accentColor }}>
 
-            {theme.campaign} {theme.decorEmoji[0]}
-          </div>
-        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         {/* Photo Grid */}
         <div className="flex-1">
