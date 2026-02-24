@@ -7,8 +7,6 @@ interface PhotoCardProps {
   borderColor: string;
   textColor: string;
   accentColor: string;
-  cardWidth?: number; // in mm
-  cardHeight?: number; // in mm
 }
 
 function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<string> {
@@ -36,7 +34,7 @@ function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<string> {
   });
 }
 
-const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, cardWidth, cardHeight }: PhotoCardProps) => {
+const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor }: PhotoCardProps) => {
   const [image, setImage] = useState<string | null>(null);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -82,35 +80,36 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, cardWidth, 
     setIsCropping(false);
   };
 
-  // Split nome into first name + rest
   const nameParts = nome.trim().split(/\s+/);
   const firstName = nameParts[0] || "";
   const restName = nameParts.slice(1).join(" ");
 
   return (
-    <div className="flex flex-col items-center" style={{ width: cardWidth ? `${cardWidth}mm` : "100%" }}>
-      {/* Day */}
+    <div className="photo-card-wrapper flex flex-col items-center w-full">
+      {/* Day - circle */}
       <div
-        className="font-bold mb-0"
+        className="day-circle flex items-center justify-center rounded-full font-bold mb-0.5"
         style={{
           fontFamily: "var(--font-display)",
-          color: textColor,
-          fontSize: "10px",
-          lineHeight: "1.3",
+          color: "white",
+          backgroundColor: accentColor,
+          width: "5.5mm",
+          height: "5.5mm",
+          fontSize: "10pt",
+          lineHeight: 1,
+          flexShrink: 0,
         }}
       >
         {dia}
       </div>
 
-      {/* Photo frame */}
+      {/* Photo frame - 3:4 aspect ratio */}
       <div
-        className="relative overflow-hidden"
+        className="relative overflow-hidden w-full"
         style={{
           border: `2px solid ${borderColor}`,
           borderRadius: "5px",
-          width: "100%",
-          height: cardHeight ? `${cardHeight}mm` : undefined,
-          aspectRatio: cardHeight ? undefined : "3 / 3.5",
+          aspectRatio: "3 / 4",
           cursor: croppedImage ? "default" : "pointer",
         }}
         onDrop={onDrop}
@@ -137,7 +136,7 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, cardWidth, 
               image={image}
               crop={crop}
               zoom={zoom}
-              aspect={3 / 3.5}
+              aspect={3 / 4}
               onCropChange={setCrop}
               onZoomChange={setZoom}
               onCropComplete={onCropComplete}
@@ -149,14 +148,14 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, cardWidth, 
               <button
                 onClick={(e) => { e.stopPropagation(); handleConfirmCrop(); }}
                 className="flex-1 text-white py-0.5 rounded"
-                style={{ backgroundColor: accentColor, fontSize: "8px" }}
+                style={{ backgroundColor: accentColor, fontSize: "10pt" }}
               >
                 ✓
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); handleResetImage(); }}
                 className="flex-1 bg-gray-500 text-white py-0.5 rounded"
-                style={{ fontSize: "8px" }}
+                style={{ fontSize: "10pt" }}
               >
                 ✕
               </button>
@@ -177,14 +176,14 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, cardWidth, 
                 <button
                   onClick={(e) => { e.stopPropagation(); setIsCropping(true); }}
                   className="text-white bg-black/60 px-1 py-0.5 rounded"
-                  style={{ fontSize: "8px" }}
+                  style={{ fontSize: "10pt" }}
                 >
                   ✂️
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); handleResetImage(); }}
                   className="text-white bg-black/60 px-1 py-0.5 rounded"
-                  style={{ fontSize: "8px" }}
+                  style={{ fontSize: "10pt" }}
                 >
                   🗑
                 </button>
@@ -197,32 +196,38 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, cardWidth, 
         {!image && !croppedImage && (
           <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50/80">
             <span style={{ fontSize: "16px", opacity: 0.25 }}>📷</span>
-            <span className="text-muted-foreground no-print" style={{ fontSize: "6px" }}>
+            <span className="text-muted-foreground no-print" style={{ fontSize: "10pt" }}>
               Clique
             </span>
           </div>
         )}
       </div>
 
-      {/* Name - two lines like in PDF */}
+      {/* Name - 3:1 rectangle */}
       <div
-        className="font-bold text-center leading-tight mt-0.5"
+        className="name-rect flex items-center justify-center font-bold text-center mt-0.5 w-full"
         style={{
           fontFamily: "var(--font-body)",
-          color: textColor,
-          fontSize: "6.5px",
-          maxWidth: "100%",
-          lineHeight: "1.2",
+          color: "white",
+          backgroundColor: accentColor,
+          borderRadius: "3px",
+          fontSize: "10pt",
+          lineHeight: 1.2,
+          aspectRatio: "3 / 1",
+          padding: "1px 2px",
+          overflow: "hidden",
         }}
       >
-        <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-          {firstName}
-        </div>
-        {restName && (
-          <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 400, fontSize: "5.5px" }}>
-            {restName}
+        <div className="w-full">
+          <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {firstName}
           </div>
-        )}
+          {restName && (
+            <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 400, fontSize: "8pt" }}>
+              {restName}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
