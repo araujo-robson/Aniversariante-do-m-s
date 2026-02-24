@@ -54,7 +54,7 @@
   }
 }
 
-/* Print styles */
+/* Print styles - A4 Landscape */
 @media print {
   body {
     margin: 0 !important;
@@ -65,23 +65,34 @@
     display: none !important;
   }
   .print-page {
-    width: 210mm !important;
-    min-height: 297mm !important;
+    width: 297mm !important;
+    height: 210mm !important;
+    min-height: 210mm !important;
+    max-height: 210mm !important;
     margin: 0 !important;
-    padding: 8mm !important;
+    padding: 0 !important;
     box-shadow: none !important;
     page-break-after: always;
+    overflow: hidden !important;
   }
   @page {
-    size: A4 portrait;
-    margin: 0;
+    size: A4 landscape;
+    margin: 10mm;
+  }
+  /* Hide all interactive elements */
+  button, input, .crop-container {
+    pointer-events: none;
+  }
+  /* Minimum font size */
+  * {
+    font-size: max(10pt, inherit) !important;
   }
 }
 
-/* A4 preview */
+/* A4 preview - Landscape */
 .a4-page {
-  width: 210mm;
-  min-height: 297mm;
+  width: 297mm;
+  height: 210mm;
   background: white;
   box-shadow: 0 4px 24px rgba(0,0,0,0.12);
   position: relative;

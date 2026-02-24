@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { monthThemes, type MonthTheme } from "@/lib/monthThemes";
 import { parseExcelFile, type BirthdayPerson } from "@/lib/excelParser";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Upload, FileSpreadsheet, PartyPopper } from "lucide-react";
+import { ChevronRight, ChevronLeft, Upload, FileSpreadsheet, PartyPopper } from "lucide-react";
 
 interface WizardProps {
   onComplete: (month: number, theme: MonthTheme, people: BirthdayPerson[]) => void;
@@ -104,14 +104,23 @@ const SetupWizard = ({ onComplete }: WizardProps) => {
                 color: monthThemes[selectedMonth].primaryColor,
               }}
             />
-            <Button
-              onClick={() => count > 0 && setStep(3)}
-              disabled={!count || count <= 0}
-              className="gap-2 text-white px-8 py-3 rounded-xl text-lg"
-              style={{ backgroundColor: monthThemes[selectedMonth].primaryColor }}
-            >
-              Próximo <ChevronRight size={18} />
-            </Button>
+            <div className="flex justify-center gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setStep(1)}
+                className="gap-2 px-6 py-3 rounded-xl text-lg"
+              >
+                <ChevronLeft size={18} /> Voltar
+              </Button>
+              <Button
+                onClick={() => count > 0 && setStep(3)}
+                disabled={!count || count <= 0}
+                className="gap-2 text-white px-8 py-3 rounded-xl text-lg"
+                style={{ backgroundColor: monthThemes[selectedMonth].primaryColor }}
+              >
+                Próximo <ChevronRight size={18} />
+              </Button>
+            </div>
           </div>
         )}
 
@@ -153,6 +162,13 @@ const SetupWizard = ({ onComplete }: WizardProps) => {
               }}
             />
             {error && <p className="text-destructive text-sm">{error}</p>}
+            <Button
+              variant="outline"
+              onClick={() => setStep(2)}
+              className="gap-2 px-6 py-3 rounded-xl text-lg"
+            >
+              <ChevronLeft size={18} /> Voltar
+            </Button>
           </div>
         )}
 
@@ -174,13 +190,22 @@ const SetupWizard = ({ onComplete }: WizardProps) => {
                 </div>
               ))}
             </div>
-            <Button
-              onClick={() => onComplete(selectedMonth, monthThemes[selectedMonth], people)}
-              className="gap-2 text-white px-8 py-3 rounded-xl text-lg"
-              style={{ backgroundColor: monthThemes[selectedMonth].primaryColor }}
-            >
-              Gerar Documento <ChevronRight size={18} />
-            </Button>
+            <div className="flex justify-center gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setStep(3)}
+                className="gap-2 px-6 py-3 rounded-xl text-lg"
+              >
+                <ChevronLeft size={18} /> Voltar
+              </Button>
+              <Button
+                onClick={() => onComplete(selectedMonth, monthThemes[selectedMonth], people)}
+                className="gap-2 text-white px-8 py-3 rounded-xl text-lg"
+                style={{ backgroundColor: monthThemes[selectedMonth].primaryColor }}
+              >
+                Gerar Documento <ChevronRight size={18} />
+              </Button>
+            </div>
           </div>
         )}
       </div>
