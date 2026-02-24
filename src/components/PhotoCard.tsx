@@ -85,39 +85,48 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor }: PhotoCard
   const restName = nameParts.slice(1).join(" ");
 
   return (
-    <div className="photo-card-wrapper flex flex-col items-center w-full">
-      {/* Day - circle */}
-      <div
-        className="day-circle flex items-center justify-center rounded-full font-bold mb-0.5"
-        style={{
-          fontFamily: "var(--font-display)",
-          color: "white",
-          backgroundColor: accentColor,
-          width: "5.5mm",
-          height: "5.5mm",
-          fontSize: "10pt",
-          lineHeight: 1,
-          flexShrink: 0,
-        }}
-      >
-        {dia}
-      </div>
+    <div className="photo-card-wrapper flex flex-col items-center w-full relative" style={{ paddingTop: "2.75mm" }}>
 
-      {/* Photo frame - 3:4 aspect ratio */}
+      {/* Photo frame wrapper - no overflow hidden so circle can overflow */}
       <div
-        className="relative overflow-hidden w-full"
+        className="relative w-full"
         style={{
-          border: `2px solid ${borderColor}`,
-          borderRadius: "5px",
           aspectRatio: "3 / 4",
-          cursor: croppedImage ? "default" : "pointer",
-        }}
-        onDrop={onDrop}
-        onDragOver={(e) => e.preventDefault()}
-        onClick={() => {
-          if (!image && !croppedImage) inputRef.current?.click();
         }}
       >
+        {/* Day - circle overlapping top-left corner */}
+        <div
+          className="day-circle absolute flex items-center justify-center rounded-full font-bold"
+          style={{
+            fontFamily: "var(--font-display)",
+            color: "white",
+            backgroundColor: accentColor,
+            width: "5.5mm",
+            height: "5.5mm",
+            fontSize: "10pt",
+            lineHeight: 1,
+            top: "-2.75mm",
+            left: "-2.75mm",
+            zIndex: 30,
+          }}
+        >
+          {dia}
+        </div>
+
+        {/* Photo frame inner - clips photo content */}
+        <div
+          className="relative overflow-hidden w-full h-full"
+          style={{
+            border: `2px solid ${borderColor}`,
+            borderRadius: "5px",
+            cursor: croppedImage ? "default" : "pointer",
+          }}
+          onDrop={onDrop}
+          onDragOver={(e) => e.preventDefault()}
+          onClick={() => {
+            if (!image && !croppedImage) inputRef.current?.click();
+          }}
+        >
         <input
           ref={inputRef}
           type="file"
@@ -201,6 +210,7 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor }: PhotoCard
             </span>
           </div>
         )}
+        </div>
       </div>
 
       {/* Name - 3:1 rectangle */}
