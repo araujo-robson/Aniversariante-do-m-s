@@ -103,8 +103,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
         </div>
 
         {/* Footer */}
-        <div className="mt-auto pt-4 flex items-end justify-between">
-          
+        
 
 
 
@@ -113,12 +112,13 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
 
 
 
-          
 
 
 
 
-        </div>
+
+
+
       </div>
     </div>);
 
