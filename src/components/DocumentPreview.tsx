@@ -46,7 +46,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
         {/* Decorative corners */}
         
         <div className="absolute top-3 right-4 text-2xl opacity-70 select-none">{theme.decorEmoji[1]}</div>
-        <div className="absolute top-10 left-10 text-lg opacity-40 select-none">{theme.decorEmoji[2]}</div>
+        
         <div className="absolute top-10 right-10 text-lg opacity-40 select-none">{theme.decorEmoji[3]}</div>
 
         {/* Header */}
