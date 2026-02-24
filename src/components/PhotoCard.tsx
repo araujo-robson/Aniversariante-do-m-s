@@ -80,15 +80,21 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor }: PhotoCard
     setIsCropping(false);
   };
 
+  // Split nome into first name + rest
+  const nameParts = nome.trim().split(/\s+/);
+  const firstName = nameParts[0] || "";
+  const restName = nameParts.slice(1).join(" ");
+
   return (
     <div className="flex flex-col items-center" style={{ width: "100%" }}>
       {/* Day */}
       <div
-        className="font-bold text-sm mb-0.5 no-print-hide"
+        className="font-bold mb-0"
         style={{
           fontFamily: "var(--font-display)",
           color: textColor,
-          fontSize: "11px",
+          fontSize: "10px",
+          lineHeight: "1.3",
         }}
       >
         {dia}
@@ -96,11 +102,12 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor }: PhotoCard
 
       {/* Photo frame */}
       <div
-        className="photo-card relative"
+        className="relative overflow-hidden"
         style={{
-          borderColor: borderColor,
-          width: "90px",
-          height: "100px",
+          border: `2px solid ${borderColor}`,
+          borderRadius: "5px",
+          width: "100%",
+          aspectRatio: "3 / 3.5",
           cursor: croppedImage ? "default" : "pointer",
         }}
         onDrop={onDrop}
@@ -127,7 +134,7 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor }: PhotoCard
               image={image}
               crop={crop}
               zoom={zoom}
-              aspect={90 / 100}
+              aspect={3 / 3.5}
               onCropChange={setCrop}
               onZoomChange={setZoom}
               onCropComplete={onCropComplete}
@@ -138,15 +145,15 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor }: PhotoCard
             <div className="absolute bottom-0 left-0 right-0 flex gap-0.5 z-20 p-0.5 no-print">
               <button
                 onClick={(e) => { e.stopPropagation(); handleConfirmCrop(); }}
-                className="flex-1 text-white text-xs py-0.5 rounded"
-                style={{ backgroundColor: accentColor, fontSize: "9px" }}
+                className="flex-1 text-white py-0.5 rounded"
+                style={{ backgroundColor: accentColor, fontSize: "8px" }}
               >
                 ✓
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); handleResetImage(); }}
-                className="flex-1 bg-gray-500 text-white text-xs py-0.5 rounded"
-                style={{ fontSize: "9px" }}
+                className="flex-1 bg-gray-500 text-white py-0.5 rounded"
+                style={{ fontSize: "8px" }}
               >
                 ✕
               </button>
@@ -165,22 +172,16 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor }: PhotoCard
             <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/30 no-print">
               <div className="flex gap-1">
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsCropping(true);
-                  }}
-                  className="text-white text-xs bg-black/60 px-1.5 py-0.5 rounded"
-                  style={{ fontSize: "9px" }}
+                  onClick={(e) => { e.stopPropagation(); setIsCropping(true); }}
+                  className="text-white bg-black/60 px-1 py-0.5 rounded"
+                  style={{ fontSize: "8px" }}
                 >
                   ✂️
                 </button>
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleResetImage();
-                  }}
-                  className="text-white text-xs bg-black/60 px-1.5 py-0.5 rounded"
-                  style={{ fontSize: "9px" }}
+                  onClick={(e) => { e.stopPropagation(); handleResetImage(); }}
+                  className="text-white bg-black/60 px-1 py-0.5 rounded"
+                  style={{ fontSize: "8px" }}
                 >
                   🗑
                 </button>
@@ -191,29 +192,34 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor }: PhotoCard
 
         {/* Empty state */}
         {!image && !croppedImage && (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50">
-            <span style={{ fontSize: "20px", opacity: 0.3 }}>📷</span>
-            <span className="text-muted-foreground no-print" style={{ fontSize: "7px" }}>
-              Clique ou arraste
+          <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50/80">
+            <span style={{ fontSize: "16px", opacity: 0.25 }}>📷</span>
+            <span className="text-muted-foreground no-print" style={{ fontSize: "6px" }}>
+              Clique
             </span>
           </div>
         )}
       </div>
 
-      {/* Name */}
+      {/* Name - two lines like in PDF */}
       <div
-        className="font-bold text-center mt-0.5 leading-tight"
+        className="font-bold text-center leading-tight mt-0.5"
         style={{
           fontFamily: "var(--font-body)",
           color: textColor,
-          fontSize: "8px",
-          maxWidth: "90px",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
+          fontSize: "6.5px",
+          maxWidth: "100%",
+          lineHeight: "1.2",
         }}
       >
-        {nome}
+        <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {firstName}
+        </div>
+        {restName && (
+          <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 400, fontSize: "5.5px" }}>
+            {restName}
+          </div>
+        )}
       </div>
     </div>
   );
