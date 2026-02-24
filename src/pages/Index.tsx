@@ -1,13 +1,31 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import SetupWizard from "@/components/SetupWizard";
+import DocumentPreview from "@/components/DocumentPreview";
+import type { MonthTheme } from "@/lib/monthThemes";
+import type { BirthdayPerson } from "@/lib/excelParser";
 
 const Index = () => {
+  const [state, setState] = useState<{
+    month: number;
+    theme: MonthTheme;
+    people: BirthdayPerson[];
+  } | null>(null);
+
+  if (!state) {
+    return (
+      <SetupWizard
+        onComplete={(month, theme, people) => setState({ month, theme, people })}
+      />
+    );
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <DocumentPreview
+      month={state.month}
+      theme={state.theme}
+      people={state.people}
+      onBack={() => setState(null)}
+    />
   );
 };
 
