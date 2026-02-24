@@ -113,10 +113,10 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
 
 
 
-          <img
-            src={logo}
-            alt="Hospital São Lucas"
-            className="h-14 object-contain" />
+          
+
+
+
 
         </div>
       </div>
