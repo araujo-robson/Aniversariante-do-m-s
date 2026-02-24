@@ -14,11 +14,17 @@ interface DocumentPreviewProps {
   onBack: () => void;
 }
 
+// Margins in mm (converted from cm)
+const MARGIN_TOP = 65;    // 6.5cm
+const MARGIN_BOTTOM = 30; // 3.0cm
+const MARGIN_LEFT = 16;   // 1.6cm
+const MARGIN_RIGHT = 16;  // 1.6cm
+
 // Body area dimensions in mm
-const BODY_WIDTH = 180;
-const BODY_HEIGHT = 200;
-const BODY_LEFT = 14;
-const BODY_TOP = 62;
+const BODY_WIDTH = 210 - MARGIN_LEFT - MARGIN_RIGHT;  // 178mm
+const BODY_HEIGHT = 297 - MARGIN_TOP - MARGIN_BOTTOM;  // 202mm
+const BODY_LEFT = MARGIN_LEFT;
+const BODY_TOP = MARGIN_TOP;
 const GAP = 2;
 
 const defaultBgImages: Record<string, string> = {
@@ -108,30 +114,75 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
         )}
 
         {/* Photo Grid Body - fixed position and dimensions */}
-        <div
-          style={{
-            position: "absolute",
-            left: `${BODY_LEFT}mm`,
-            top: `${BODY_TOP}mm`,
-            width: `${BODY_WIDTH}mm`,
-            height: `${BODY_HEIGHT}mm`,
-            display: "grid",
-            gridTemplateColumns: `repeat(${cols}, 1fr)`,
-            gap: `${GAP}mm`,
-            alignContent: "start",
-          }}
-        >
-          {people.map((person, index) => (
-            <PhotoCard
-              key={index}
-              dia={person.dia}
-              nome={person.nome}
-              borderColor={theme.cardBorder}
-              textColor={theme.textColor}
-              accentColor={theme.accentColor}
-            />
-          ))}
-        </div>
+        {(() => {
+          const totalRows = Math.ceil(people.length / cols);
+          const lastRowCount = people.length % cols || cols;
+          const fullRows = people.slice(0, people.length - (lastRowCount < cols ? lastRowCount : 0));
+          const lastRow = lastRowCount < cols ? people.slice(people.length - lastRowCount) : [];
+
+          return (
+            <div
+              style={{
+                position: "absolute",
+                left: `${BODY_LEFT}mm`,
+                top: `${BODY_TOP}mm`,
+                width: `${BODY_WIDTH}mm`,
+                height: `${BODY_HEIGHT}mm`,
+                display: "flex",
+                flexDirection: "column",
+                gap: `${GAP}mm`,
+              }}
+            >
+              {/* Full rows grid */}
+              {fullRows.length > 0 && (
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: `repeat(${cols}, 1fr)`,
+                    gap: `${GAP}mm`,
+                  }}
+                >
+                  {fullRows.map((person, index) => (
+                    <PhotoCard
+                      key={index}
+                      dia={person.dia}
+                      nome={person.nome}
+                      borderColor={theme.cardBorder}
+                      textColor={theme.textColor}
+                      accentColor={theme.accentColor}
+                    />
+                  ))}
+                </div>
+              )}
+              {/* Last row centered */}
+              {lastRow.length > 0 && (
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    gap: `${GAP}mm`,
+                  }}
+                >
+                  {lastRow.map((person, index) => {
+                    // Calculate individual card width to match grid columns
+                    const cardWidth = `calc((${BODY_WIDTH}mm - ${(cols - 1) * GAP}mm) / ${cols})`;
+                    return (
+                      <div key={fullRows.length + index} style={{ width: cardWidth }}>
+                        <PhotoCard
+                          dia={person.dia}
+                          nome={person.nome}
+                          borderColor={theme.cardBorder}
+                          textColor={theme.textColor}
+                          accentColor={theme.accentColor}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
