@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, type DragEvent } from "react";
 import Cropper, { type Area } from "react-easy-crop";
+import { removeBackground } from "@imgly/background-removal";
 
 interface PhotoCardProps {
   dia: string;
@@ -41,13 +42,33 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor }: PhotoCard
   const [zoom, setZoom] = useState(1);
   const [isCropping, setIsCropping] = useState(false);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [isRemovingBg, setIsRemovingBg] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = (file: File) => {
+  const removeBg = async (dataUrl: string): Promise<string> => {
+    setIsRemovingBg(true);
+    try {
+      const response = await fetch(dataUrl);
+      const blob = await response.blob();
+      const resultBlob = await removeBackground(blob, {
+        output: { format: "image/png" as const },
+      });
+      return URL.createObjectURL(resultBlob);
+    } catch (err) {
+      console.error("Erro ao remover fundo:", err);
+      return dataUrl; // fallback to original
+    } finally {
+      setIsRemovingBg(false);
+    }
+  };
+
+  const handleFile = async (file: File) => {
     if (!file.type.startsWith("image/")) return;
     const reader = new FileReader();
-    reader.onload = (e) => {
-      setImage(e.target?.result as string);
+    reader.onload = async (e) => {
+      const originalDataUrl = e.target?.result as string;
+      const processedUrl = await removeBg(originalDataUrl);
+      setImage(processedUrl);
       setCroppedImage(null);
       setIsCropping(true);
       setCrop({ x: 0, y: 0 });
@@ -201,8 +222,18 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor }: PhotoCard
           </>
         )}
 
+        {/* Loading state - removing background */}
+        {isRemovingBg && (
+          <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50/80">
+            <div className="animate-spin rounded-full h-6 w-6 border-2 border-t-transparent" style={{ borderColor: accentColor, borderTopColor: 'transparent' }} />
+            <span className="text-muted-foreground mt-1" style={{ fontSize: "8pt" }}>
+              Removendo fundo...
+            </span>
+          </div>
+        )}
+
         {/* Empty state */}
-        {!image && !croppedImage && (
+        {!image && !croppedImage && !isRemovingBg && (
           <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50/80">
             <span style={{ fontSize: "16px", opacity: 0.25 }}>📷</span>
             <span className="text-muted-foreground no-print" style={{ fontSize: "10pt" }}>
