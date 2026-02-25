@@ -1,7 +1,5 @@
 import { useState, useCallback, useRef, type DragEvent } from "react";
 import Cropper, { type Area } from "react-easy-crop";
-// Dynamic import to avoid blocking app load
-const removeBackgroundLazy = () => import("@imgly/background-removal").then(m => m.removeBackground);
 
 interface PhotoCardProps {
   dia: string;
@@ -9,7 +7,6 @@ interface PhotoCardProps {
   borderColor: string;
   textColor: string;
   accentColor: string;
-  removeBgEnabled?: boolean;
 }
 
 function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<string> {
@@ -40,46 +37,20 @@ function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<string> {
   });
 }
 
-const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, removeBgEnabled = true }: PhotoCardProps) => {
+const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor }: PhotoCardProps) => {
   const [image, setImage] = useState<string | null>(null);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [isCropping, setIsCropping] = useState(false);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
-  const [isRemovingBg, setIsRemovingBg] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const removeBg = async (dataUrl: string): Promise<string> => {
-    setIsRemovingBg(true);
-    try {
-      const response = await fetch(dataUrl);
-      const blob = await response.blob();
-      const removeBackground = await removeBackgroundLazy();
-      const resultBlob = await removeBackground(blob, {
-        output: { format: "image/png" as const },
-      });
-      // Convert blob to data URL to preserve transparency in canvas operations
-      return new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.readAsDataURL(resultBlob);
-      });
-    } catch (err) {
-      console.error("Erro ao remover fundo:", err);
-      return dataUrl;
-    } finally {
-      setIsRemovingBg(false);
-    }
-  };
-
-  const handleFile = async (file: File) => {
+  const handleFile = (file: File) => {
     if (!file.type.startsWith("image/")) return;
     const reader = new FileReader();
-    reader.onload = async (e) => {
-      const originalDataUrl = e.target?.result as string;
-      const processedUrl = removeBgEnabled ? await removeBg(originalDataUrl) : originalDataUrl;
-      setImage(processedUrl);
+    reader.onload = (e) => {
+      setImage(e.target?.result as string);
       setCroppedImage(null);
       setIsCropping(true);
       setCrop({ x: 0, y: 0 });
@@ -233,18 +204,9 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, removeBgEna
           </>
         )}
 
-        {/* Loading state - removing background */}
-        {isRemovingBg && (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50/80">
-            <div className="animate-spin rounded-full h-6 w-6 border-2 border-t-transparent" style={{ borderColor: accentColor, borderTopColor: 'transparent' }} />
-            <span className="text-muted-foreground mt-1" style={{ fontSize: "8pt" }}>
-              Removendo fundo...
-            </span>
-          </div>
-        )}
 
         {/* Empty state */}
-        {!image && !croppedImage && !isRemovingBg && (
+        {!image && !croppedImage && (
           <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50/80">
             <span style={{ fontSize: "16px", opacity: 0.25 }}>📷</span>
             <span className="text-muted-foreground no-print" style={{ fontSize: "10pt" }}>
