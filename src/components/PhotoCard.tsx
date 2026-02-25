@@ -245,7 +245,7 @@ const PhotoCard = ({ dia, nome, setor, borderColor, textColor, accentColor, name
         ref={nameContainerRef}
         className="name-rect flex items-center justify-center font-bold text-center mt-0.5"
         style={{
-          fontFamily: "var(--font-body)",
+          fontFamily: "'Anton', sans-serif",
           color: "white",
           backgroundColor: accentColor,
           borderRadius: "3px",
@@ -276,8 +276,8 @@ const PhotoCard = ({ dia, nome, setor, borderColor, textColor, accentColor, name
           }}>{nome}</div>
           {setor && (
             <div style={{
-              fontSize: "0.75em",
-              fontWeight: 400,
+              fontSize: "1em",
+              fontWeight: 700,
               opacity: 0.9,
               marginTop: "1px",
               display: "-webkit-box",
