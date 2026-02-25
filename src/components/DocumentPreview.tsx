@@ -109,8 +109,8 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
         {/* Decorative corners - hide when bg image */}
         {!hasBgImage && !customBg &&
         <>
-            
-            
+            <div className="absolute top-3 right-4 text-2xl opacity-70 select-none">{theme.decorEmoji[1]}</div>
+            <div className="absolute top-10 right-10 text-lg opacity-40 select-none">{theme.decorEmoji[3]}</div>
           </>
         }
 
