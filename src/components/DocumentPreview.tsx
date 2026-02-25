@@ -91,8 +91,16 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
     ? `url(${bgImageUrl}) ${BG_MARGIN}mm ${BG_MARGIN}mm / ${210 - BG_MARGIN * 2}mm ${297 - BG_MARGIN * 2}mm no-repeat white`
     : theme.bgGradient;
 
+  const [pageZoom, setPageZoom] = useState(1);
+
+  const handleWheel = (e: React.WheelEvent) => {
+    if (e.ctrlKey || e.metaKey) return;
+    e.preventDefault();
+    setPageZoom(z => Math.min(2, Math.max(0.3, z + (e.deltaY > 0 ? -0.05 : 0.05))));
+  };
+
   return (
-    <div className="print-page-wrapper min-h-screen py-8 px-4" style={{ background: "hsl(220 14% 92%)" }}>
+    <div className="print-page-wrapper min-h-screen py-8 px-4" style={{ background: "hsl(220 14% 92%)" }} onWheel={handleWheel}>
       {/* Toolbar */}
       <div className="no-print max-w-[210mm] mx-auto mb-4 flex flex-col gap-3">
         <div className="flex items-center justify-between">
@@ -170,7 +178,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
       {/* A4 Page */}
       <div
         className="a4-page print-page mx-auto relative"
-        style={{ background: bgStyle }}
+        style={{ background: bgStyle, transform: `scale(${pageZoom})`, transformOrigin: "top center", transition: "transform 0.15s ease-out" }}
       >
         {/* Decorative corners - hide when bg image */}
         {!hasBgImage && !customBg && (
