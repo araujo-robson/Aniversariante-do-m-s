@@ -14,9 +14,9 @@ export interface ProjectData {
 export function exportProject(month: number, people: BirthdayPerson[]): void {
   const images: Record<string, string> = {};
 
-  // Collect all stored images for this month
+  // Collect all stored images (photocard-{month}-{index}) for this month
   for (let i = 0; i < people.length; i++) {
-    const key = `photo-${month}-${i}`;
+    const key = `photocard-${month}-${i}`;
     const val = localStorage.getItem(key);
     if (val) images[`${month}-${i}`] = val;
   }
@@ -54,7 +54,7 @@ export async function importProject(file: File): Promise<ProjectData> {
   // Restore images to localStorage
   for (const [key, val] of Object.entries(data.images)) {
     try {
-      localStorage.setItem(`photo-${key}`, val);
+      localStorage.setItem(`photocard-${key}`, val);
     } catch { /* storage full */ }
   }
 
