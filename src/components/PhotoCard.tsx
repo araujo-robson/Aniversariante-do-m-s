@@ -106,9 +106,6 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, nameAspect 
     setIsCropping(false);
   };
 
-  const nameParts = nome.trim().split(/\s+/);
-  const firstName = nameParts[0] || "";
-  const restName = nameParts.slice(1).join(" ");
 
   return (
     <div className="photo-card-wrapper flex flex-col items-center w-full relative" style={{ paddingTop: "2.75mm" }}>
