@@ -70,8 +70,8 @@ const DocumentPreview = ({ month, theme, people: initialPeople, onBack }: Docume
   const navigate = useNavigate();
   const [people, setPeople] = useState<BirthdayPerson[]>(initialPeople);
 
-  const handleNameChange = (index: number, nome: string, setor: string) => {
-    setPeople(prev => prev.map((p, i) => i === index ? { ...p, nome, setor } : p));
+  const handleNameChange = (index: number, nome: string, setor: string, dia: string) => {
+    setPeople(prev => prev.map((p, i) => i === index ? { ...p, nome, setor, dia } : p));
   };
 
   // Load saved custom bg from localStorage
@@ -298,7 +298,7 @@ const DocumentPreview = ({ month, theme, people: initialPeople, onBack }: Docume
                       nameWidthPct={nameWidthPct}
                       nameFontSize={nameFontSize}
                       storageKey={`${month}-${index}`}
-                      onNameChange={(n, s) => handleNameChange(index, n, s)}
+                      onNameChange={(n, s, d) => handleNameChange(index, n, s, d)}
                     />
                   ))}
                 </div>
@@ -327,7 +327,7 @@ const DocumentPreview = ({ month, theme, people: initialPeople, onBack }: Docume
                           nameWidthPct={nameWidthPct}
                           nameFontSize={nameFontSize}
                           storageKey={`${month}-${globalIndex}`}
-                          onNameChange={(n, s) => handleNameChange(globalIndex, n, s)}
+                          onNameChange={(n, s, d) => handleNameChange(globalIndex, n, s, d)}
                         />
                       </div>
                     );

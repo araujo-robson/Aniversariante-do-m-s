@@ -11,7 +11,7 @@ interface PhotoCardProps {
   nameWidthPct?: number;
   nameFontSize?: number;
   storageKey?: string;
-  onNameChange?: (nome: string, setor: string) => void;
+  onNameChange?: (nome: string, setor: string, dia: string) => void;
 }
 
 const PhotoCard = ({
@@ -31,8 +31,10 @@ const PhotoCard = ({
   const [imgScale, setImgScale] = useState(savedState?.scale || 1);
   const [isDragging, setIsDragging] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
+  const [isEditingDay, setIsEditingDay] = useState(false);
   const [editNome, setEditNome] = useState(nome);
   const [editSetor, setEditSetor] = useState(setor || "");
+  const [editDia, setEditDia] = useState(dia);
   const dragStartRef = useRef({ x: 0, y: 0, offsetX: 0, offsetY: 0 });
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -141,10 +143,25 @@ const PhotoCard = ({
           style={{
             fontFamily: "var(--font-display)", color: "white", backgroundColor: accentColor,
             border: "0.25mm solid black", width: "8.5mm", height: "8.5mm", fontSize: "14pt",
-            lineHeight: 1, top: "-4.25mm", left: "-4.25mm", zIndex: 30,
+            lineHeight: 1, top: "-4.25mm", left: "-4.25mm", zIndex: 30, cursor: "text",
           }}
+          onClick={(e) => { e.stopPropagation(); setEditDia(dia); setIsEditingDay(true); }}
+          title="Clique para editar o dia"
         >
-          {dia}
+          {isEditingDay ? (
+            <input
+              autoFocus
+              value={editDia}
+              onChange={(e) => setEditDia(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") { onNameChange?.(nome, setor || "", editDia); setIsEditingDay(false); }
+                if (e.key === "Escape") { setEditDia(dia); setIsEditingDay(false); }
+              }}
+              onBlur={() => { onNameChange?.(nome, setor || "", editDia); setIsEditingDay(false); }}
+              onClick={(e) => e.stopPropagation()}
+              style={{ width: "6mm", background: "rgba(255,255,255,0.9)", color: "#000", border: "none", borderRadius: "2px", fontSize: "10pt", textAlign: "center", padding: 0 }}
+            />
+          ) : dia}
         </div>
 
         {/* Photo frame */}
@@ -235,7 +252,7 @@ const PhotoCard = ({
                 value={editNome}
                 onChange={(e) => setEditNome(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") { onNameChange?.(editNome, editSetor); setIsEditingName(false); }
+                  if (e.key === "Enter") { onNameChange?.(editNome, editSetor, dia); setIsEditingName(false); }
                   if (e.key === "Escape") { setEditNome(nome); setEditSetor(setor || ""); setIsEditingName(false); }
                 }}
                 style={{ background: "rgba(255,255,255,0.9)", color: "#000", border: "1px solid #666", borderRadius: "2px", fontSize: "inherit", fontFamily: "inherit", padding: "1px 3px", width: "100%", textAlign: "center" }}
@@ -245,10 +262,10 @@ const PhotoCard = ({
                 value={editSetor}
                 onChange={(e) => setEditSetor(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") { onNameChange?.(editNome, editSetor); setIsEditingName(false); }
+                  if (e.key === "Enter") { onNameChange?.(editNome, editSetor, dia); setIsEditingName(false); }
                   if (e.key === "Escape") { setEditNome(nome); setEditSetor(setor || ""); setIsEditingName(false); }
                 }}
-                onBlur={() => { onNameChange?.(editNome, editSetor); setIsEditingName(false); }}
+                onBlur={() => { onNameChange?.(editNome, editSetor, dia); setIsEditingName(false); }}
                 style={{ background: "rgba(255,255,255,0.9)", color: "#000", border: "1px solid #666", borderRadius: "2px", fontSize: "inherit", fontFamily: "inherit", padding: "1px 3px", width: "100%", textAlign: "center" }}
                 placeholder="Setor"
               />
