@@ -110,7 +110,7 @@ const PhotoCard = ({ dia, nome, setor, borderColor, textColor, accentColor, name
 
 
   return (
-    <div className="photo-card-wrapper flex flex-col items-center w-full relative" style={{ paddingTop: "3.5mm" }}>
+    <div className="photo-card-wrapper flex flex-col items-center w-full relative" style={{ paddingTop: "4.25mm" }}>
 
       {/* Photo frame wrapper - no overflow hidden so circle can overflow */}
       <div
@@ -127,12 +127,12 @@ const PhotoCard = ({ dia, nome, setor, borderColor, textColor, accentColor, name
             color: "white",
             backgroundColor: accentColor,
             border: "0.25mm solid black",
-            width: "7mm",
-            height: "7mm",
+            width: "8.5mm",
+            height: "8.5mm",
             fontSize: "14pt",
             lineHeight: 1,
-            top: "-3.5mm",
-            left: "-3.5mm",
+            top: "-4.25mm",
+            left: "-4.25mm",
             zIndex: 30,
           }}
         >
