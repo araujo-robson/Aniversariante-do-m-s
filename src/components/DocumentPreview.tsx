@@ -40,8 +40,11 @@ function getMaxCols(count: number): number {
 
 const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps) => {
   const [customBg, setCustomBg] = useState<string | null>(null);
-  const [nameAspect, setNameAspect] = useState(3); // aspect ratio width:1 for name rect (default 3:1)
-  const [gridScale, setGridScale] = useState(100); // percentage scale of the grid
+  const [nameAspect, setNameAspect] = useState(3);
+  const [nameWidthPct, setNameWidthPct] = useState(100); // percentage of card width
+  const [gridScale, setGridScale] = useState(100);
+  const [offsetX, setOffsetX] = useState(0); // mm offset from center
+  const [offsetY, setOffsetY] = useState(0); // mm offset from center
   
   const bgInputRef = useRef<HTMLInputElement>(null);
 
@@ -104,30 +107,31 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
         </div>
 
         {/* Adjustment sliders */}
-        <div className="flex items-center gap-6 bg-white rounded-lg px-4 py-3 shadow-sm">
-          <div className="flex items-center gap-3 flex-1">
-            <label className="text-sm font-medium whitespace-nowrap">📐 Tamanho do Grid:</label>
-            <Slider
-              value={[gridScale]}
-              onValueChange={([v]) => setGridScale(v)}
-              min={60}
-              max={120}
-              step={1}
-              className="flex-1"
-            />
-            <span className="text-sm text-muted-foreground w-10 text-right">{gridScale}%</span>
+        <div className="grid grid-cols-2 gap-x-6 gap-y-2 bg-white rounded-lg px-4 py-3 shadow-sm">
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-medium whitespace-nowrap">📐 Tamanho Grid:</label>
+            <Slider value={[gridScale]} onValueChange={([v]) => setGridScale(v)} min={60} max={120} step={1} className="flex-1" />
+            <span className="text-sm text-muted-foreground w-12 text-right">{gridScale}%</span>
           </div>
-          <div className="flex items-center gap-3 flex-1">
-            <label className="text-sm font-medium whitespace-nowrap">📝 Altura do Nome:</label>
-            <Slider
-              value={[nameAspect]}
-              onValueChange={([v]) => setNameAspect(v)}
-              min={1.5}
-              max={5}
-              step={0.25}
-              className="flex-1"
-            />
-            <span className="text-sm text-muted-foreground w-10 text-right">{nameAspect}:1</span>
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-medium whitespace-nowrap">📝 Altura Nome:</label>
+            <Slider value={[nameAspect]} onValueChange={([v]) => setNameAspect(v)} min={1.5} max={5} step={0.25} className="flex-1" />
+            <span className="text-sm text-muted-foreground w-12 text-right">{nameAspect}:1</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-medium whitespace-nowrap">↔️ Posição X:</label>
+            <Slider value={[offsetX]} onValueChange={([v]) => setOffsetX(v)} min={-40} max={40} step={0.5} className="flex-1" />
+            <span className="text-sm text-muted-foreground w-12 text-right">{offsetX}mm</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-medium whitespace-nowrap">↕️ Posição Y:</label>
+            <Slider value={[offsetY]} onValueChange={([v]) => setOffsetY(v)} min={-40} max={40} step={0.5} className="flex-1" />
+            <span className="text-sm text-muted-foreground w-12 text-right">{offsetY}mm</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-medium whitespace-nowrap">📏 Largura Nome:</label>
+            <Slider value={[nameWidthPct]} onValueChange={([v]) => setNameWidthPct(v)} min={50} max={100} step={1} className="flex-1" />
+            <span className="text-sm text-muted-foreground w-12 text-right">{nameWidthPct}%</span>
           </div>
         </div>
       </div>
@@ -158,16 +162,17 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
 
           const scaledWidth = BODY_WIDTH * (gridScale / 100);
           const scaledHeight = BODY_HEIGHT * (gridScale / 100);
-          // Center the grid within the original body area
-          const offsetLeft = BODY_LEFT + (BODY_WIDTH - scaledWidth) / 2;
-          const offsetTop = BODY_TOP + (BODY_HEIGHT - scaledHeight) / 2;
+          const centerLeft = BODY_LEFT + (BODY_WIDTH - scaledWidth) / 2;
+          const centerTop = BODY_TOP + (BODY_HEIGHT - scaledHeight) / 2;
+          const finalLeft = centerLeft + offsetX;
+          const finalTop = centerTop + offsetY;
 
           return (
             <div
               style={{
                 position: "absolute",
-                left: `${offsetLeft}mm`,
-                top: `${offsetTop}mm`,
+                left: `${finalLeft}mm`,
+                top: `${finalTop}mm`,
                 width: `${scaledWidth}mm`,
                 height: `${scaledHeight}mm`,
                 display: "flex",
@@ -193,6 +198,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
                       textColor={theme.textColor}
                       accentColor={cardAccent}
                       nameAspect={nameAspect}
+                      nameWidthPct={nameWidthPct}
                     />
                   ))}
                 </div>
@@ -217,6 +223,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
                           textColor={theme.textColor}
                           accentColor={cardAccent}
                           nameAspect={nameAspect}
+                          nameWidthPct={nameWidthPct}
                         />
                       </div>
                     );
