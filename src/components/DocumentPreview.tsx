@@ -11,15 +11,13 @@ import { Slider } from "@/components/ui/slider";
 import { Printer, ArrowLeft, ImagePlus, Home, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface DocumentPreviewProps {
   month: number;
@@ -120,7 +118,7 @@ const DocumentPreview = ({ month, theme, people: initialPeople, onBack }: Docume
 
   const handlePrintOnly = () => {
     setShowExportDialog(false);
-    window.print();
+    setTimeout(() => window.print(), 350);
   };
 
   const cardAccent = theme.primaryColor;
@@ -340,22 +338,22 @@ const DocumentPreview = ({ month, theme, people: initialPeople, onBack }: Docume
       </div>
 
       {/* Export dialog */}
-      <AlertDialog open={showExportDialog} onOpenChange={setShowExportDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Exportar projeto?</AlertDialogTitle>
-            <AlertDialogDescription>
+      <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Exportar projeto?</DialogTitle>
+            <DialogDescription>
               Deseja exportar este projeto como arquivo antes de imprimir? Assim você poderá importá-lo novamente no futuro.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={handlePrintOnly}>Apenas Imprimir</AlertDialogCancel>
-            <AlertDialogAction onClick={handleExportAndPrint} className="gap-2">
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={handlePrintOnly}>Apenas Imprimir</Button>
+            <Button onClick={handleExportAndPrint} className="gap-2">
               <Download size={16} /> Exportar e Imprimir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
