@@ -15,11 +15,14 @@ interface PhotoCardProps {
 function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<string> {
   return new Promise((resolve) => {
     const image = new Image();
+    image.crossOrigin = "anonymous";
     image.onload = () => {
       const canvas = document.createElement("canvas");
       canvas.width = pixelCrop.width;
       canvas.height = pixelCrop.height;
       const ctx = canvas.getContext("2d")!;
+      // Clear canvas to ensure transparency is preserved
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(
         image,
         pixelCrop.x,
@@ -56,10 +59,15 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, removeBgEna
       const resultBlob = await removeBackground(blob, {
         output: { format: "image/png" as const },
       });
-      return URL.createObjectURL(resultBlob);
+      // Convert blob to data URL to preserve transparency in canvas operations
+      return new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(resultBlob);
+      });
     } catch (err) {
       console.error("Erro ao remover fundo:", err);
-      return dataUrl; // fallback to original
+      return dataUrl;
     } finally {
       setIsRemovingBg(false);
     }
