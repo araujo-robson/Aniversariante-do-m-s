@@ -5,7 +5,7 @@ import PhotoCard from "@/components/PhotoCard";
 import logo from "@/assets/logo.png";
 import fevereiroBg from "@/assets/fevereiro-bg.png";
 import { Button } from "@/components/ui/button";
-import { Printer, ArrowLeft, ImagePlus } from "lucide-react";
+import { Printer, ArrowLeft, ImagePlus, Eraser } from "lucide-react";
 
 interface DocumentPreviewProps {
   month: number;
@@ -16,13 +16,13 @@ interface DocumentPreviewProps {
 
 // Margins in mm (converted from cm)
 const MARGIN_TOP = 65;    // 6.5cm
-const MARGIN_BOTTOM = 30; // 3.0cm
+const MARGIN_BOTTOM = 60; // 6.0cm
 const MARGIN_LEFT = 16;   // 1.6cm
 const MARGIN_RIGHT = 16;  // 1.6cm
 
 // Body area dimensions in mm
 const BODY_WIDTH = 210 - MARGIN_LEFT - MARGIN_RIGHT;  // 178mm
-const BODY_HEIGHT = 297 - MARGIN_TOP - MARGIN_BOTTOM;  // 202mm
+const BODY_HEIGHT = 297 - MARGIN_TOP - MARGIN_BOTTOM;  // 172mm
 const BODY_LEFT = MARGIN_LEFT;
 const BODY_TOP = MARGIN_TOP;
 const GAP = 2;
@@ -39,6 +39,7 @@ function getMaxCols(count: number): number {
 
 const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps) => {
   const [customBg, setCustomBg] = useState<string | null>(null);
+  const [removeBgEnabled, setRemoveBgEnabled] = useState(true);
   const bgInputRef = useRef<HTMLInputElement>(null);
 
   const maxCols = getMaxCols(people.length);
@@ -69,6 +70,14 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
           <ArrowLeft size={16} /> Voltar
         </Button>
         <div className="flex gap-2">
+          <Button
+            variant={removeBgEnabled ? "default" : "outline"}
+            onClick={() => setRemoveBgEnabled(!removeBgEnabled)}
+            className="gap-2"
+            title={removeBgEnabled ? "Remoção de fundo ativada" : "Remoção de fundo desativada"}
+          >
+            <Eraser size={16} /> {removeBgEnabled ? "Rem. Fundo: ON" : "Rem. Fundo: OFF"}
+          </Button>
           <Button
             variant="outline"
             onClick={() => bgInputRef.current?.click()}
@@ -150,6 +159,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
                       borderColor={theme.cardBorder}
                       textColor={theme.textColor}
                       accentColor={theme.accentColor}
+                      removeBgEnabled={removeBgEnabled}
                     />
                   ))}
                 </div>
@@ -174,6 +184,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
                           borderColor={theme.cardBorder}
                           textColor={theme.textColor}
                           accentColor={theme.accentColor}
+                          removeBgEnabled={removeBgEnabled}
                         />
                       </div>
                     );
