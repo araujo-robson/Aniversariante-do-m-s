@@ -30,8 +30,18 @@ const BODY_LEFT = MARGIN_LEFT;
 const BODY_TOP = MARGIN_TOP;
 const GAP = 2;
 
-// Background margin for print safety (5mm = 0.5cm on all sides)
-const BG_MARGIN = 5;
+/**
+ * ╔══════════════════════════════════════════════════════════════╗
+ * ║  MARGEM DO PLANO DE FUNDO — NÃO ALTERAR                    ║
+ * ║  Valor fixo: 5mm (0,5cm) em todos os lados.                ║
+ * ║  A imagem de fundo é posicionada via <img> absoluto         ║
+ * ║  dentro da página A4, usando estas constantes.              ║
+ * ║  Qualquer alteração aqui afeta TODAS as impressões.         ║
+ * ╚══════════════════════════════════════════════════════════════╝
+ */
+const BG_MARGIN_MM = 5; // 0.5cm — NÃO ALTERAR
+const BG_WIDTH_MM = 210 - BG_MARGIN_MM * 2;  // 200mm
+const BG_HEIGHT_MM = 297 - BG_MARGIN_MM * 2; // 287mm
 
 const defaultBgImages: Record<string, string> = {
   fevereiro: fevereiroBg,
@@ -86,16 +96,10 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
 
   const cardAccent = theme.primaryColor;
 
-  // Background with 5mm margins for print safety (separate properties for reliability)
+  // Background: usa <img> absoluto para garantir margens fixas (não CSS background)
   const hasBgImg = !!bgImageUrl;
-  const bgProps = hasBgImg
-    ? {
-        backgroundColor: "white",
-        backgroundImage: `url(${bgImageUrl})`,
-        backgroundPosition: `${BG_MARGIN}mm ${BG_MARGIN}mm`,
-        backgroundSize: `${210 - BG_MARGIN * 2}mm ${297 - BG_MARGIN * 2}mm`,
-        backgroundRepeat: "no-repeat" as const,
-      }
+  const pageStyle = hasBgImg
+    ? { backgroundColor: "white" }
     : { background: theme.bgGradient };
 
   const [pageZoom, setPageZoom] = useState(1);
@@ -188,8 +192,26 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
       {/* A4 Page */}
       <div
         className="a4-page print-page mx-auto relative"
-        style={{ ...bgProps, transform: `scale(${pageZoom})`, transformOrigin: "top center", transition: "transform 0.15s ease-out" }}
+        style={{ ...pageStyle, transform: `scale(${pageZoom})`, transformOrigin: "top center", transition: "transform 0.15s ease-out" }}
       >
+        {/* ── Imagem de fundo com margem fixa de 0,5cm ── NÃO ALTERAR ── */}
+        {hasBgImg && (
+          <img
+            src={bgImageUrl}
+            alt=""
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              top: `${BG_MARGIN_MM}mm`,
+              left: `${BG_MARGIN_MM}mm`,
+              width: `${BG_WIDTH_MM}mm`,
+              height: `${BG_HEIGHT_MM}mm`,
+              objectFit: "fill",
+              pointerEvents: "none",
+              zIndex: 0,
+            }}
+          />
+        )}
         {/* Decorative corners - hide when bg image */}
         {!hasBgImage && !customBg && (
           <>
@@ -216,6 +238,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
             <div
               style={{
                 position: "absolute",
+                zIndex: 1,
                 left: `${finalLeft}mm`,
                 top: `${finalTop}mm`,
                 width: `${scaledWidth}mm`,
