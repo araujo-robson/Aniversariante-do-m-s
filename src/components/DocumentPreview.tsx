@@ -5,7 +5,7 @@ import PhotoCard from "@/components/PhotoCard";
 import logo from "@/assets/logo.png";
 import fevereiroBg from "@/assets/fevereiro-bg.png";
 import { Button } from "@/components/ui/button";
-import { Printer, ArrowLeft, ImagePlus, Eraser } from "lucide-react";
+import { Printer, ArrowLeft, ImagePlus } from "lucide-react";
 
 interface DocumentPreviewProps {
   month: number;
@@ -39,7 +39,7 @@ function getMaxCols(count: number): number {
 
 const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps) => {
   const [customBg, setCustomBg] = useState<string | null>(null);
-  const [removeBgEnabled, setRemoveBgEnabled] = useState(true);
+  
   const bgInputRef = useRef<HTMLInputElement>(null);
 
   const maxCols = getMaxCols(people.length);
@@ -70,14 +70,6 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
           <ArrowLeft size={16} /> Voltar
         </Button>
         <div className="flex gap-2">
-          <Button
-            variant={removeBgEnabled ? "default" : "outline"}
-            onClick={() => setRemoveBgEnabled(!removeBgEnabled)}
-            className="gap-2"
-            title={removeBgEnabled ? "Remoção de fundo ativada" : "Remoção de fundo desativada"}
-          >
-            <Eraser size={16} /> {removeBgEnabled ? "Rem. Fundo: ON" : "Rem. Fundo: OFF"}
-          </Button>
           <Button
             variant="outline"
             onClick={() => bgInputRef.current?.click()}
@@ -159,7 +151,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
                       borderColor={theme.cardBorder}
                       textColor={theme.textColor}
                       accentColor={theme.accentColor}
-                      removeBgEnabled={removeBgEnabled}
+                      removeBgEnabled={true}
                     />
                   ))}
                 </div>
@@ -184,7 +176,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
                           borderColor={theme.cardBorder}
                           textColor={theme.textColor}
                           accentColor={theme.accentColor}
-                          removeBgEnabled={removeBgEnabled}
+                          removeBgEnabled={true}
                         />
                       </div>
                     );
