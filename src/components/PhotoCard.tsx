@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, type DragEvent } from "react";
+import { useState, useCallback, useRef, useEffect, type DragEvent } from "react";
 import Cropper, { type Area } from "react-easy-crop";
 
 interface PhotoCardProps {
@@ -47,6 +47,27 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, nameAspect 
   const [isCropping, setIsCropping] = useState(false);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const nameContainerRef = useRef<HTMLDivElement>(null);
+  const nameTextRef = useRef<HTMLDivElement>(null);
+
+  // Auto-shrink font size to fit name within container
+  useEffect(() => {
+    const container = nameContainerRef.current;
+    const textEl = nameTextRef.current;
+    if (!container || !textEl) return;
+
+    // Reset font size
+    textEl.style.fontSize = "10pt";
+    
+    let size = 10;
+    const minSize = 5;
+    
+    // Shrink until text fits or min reached
+    while (size > minSize && (textEl.scrollHeight > container.clientHeight || textEl.scrollWidth > container.clientWidth)) {
+      size -= 0.5;
+      textEl.style.fontSize = `${size}pt`;
+    }
+  }, [nome, nameAspect, nameWidthPct]);
 
   const handleFile = (file: File) => {
     if (!file.type.startsWith("image/")) return;
@@ -222,6 +243,7 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, nameAspect 
 
       {/* Name - 3:1 rectangle */}
       <div
+        ref={nameContainerRef}
         className="name-rect flex items-center justify-center font-bold text-center mt-0.5"
         style={{
           fontFamily: "var(--font-body)",
@@ -229,7 +251,6 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, nameAspect 
           backgroundColor: accentColor,
           borderRadius: "3px",
           border: "0.25mm solid black",
-          fontSize: "10pt",
           lineHeight: 1.2,
           aspectRatio: `${nameAspect} / 1`,
           padding: "1px 2px",
@@ -237,15 +258,20 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, nameAspect 
           width: `${nameWidthPct}%`,
         }}
       >
-        <div className="w-full">
-          <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {firstName}
-          </div>
-          {restName && (
-            <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 400, fontSize: "8pt" }}>
-              {restName}
-            </div>
-          )}
+        <div
+          ref={nameTextRef}
+          style={{
+            fontSize: "10pt",
+            width: "100%",
+            overflow: "hidden",
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            wordBreak: "break-word",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {nome}
         </div>
       </div>
     </div>
