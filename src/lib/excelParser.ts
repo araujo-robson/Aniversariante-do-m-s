@@ -3,6 +3,7 @@ import * as XLSX from "xlsx";
 export interface BirthdayPerson {
   dia: string;
   nome: string;
+  setor: string;
   image?: string;
 }
 
@@ -24,7 +25,10 @@ export function parseExcelFile(file: File): Promise<BirthdayPerson[]> {
           const nome = String(
             row["Nome"] ?? row["nome"] ?? row["NOME"] ?? ""
           ).trim();
-          return { dia, nome };
+          const setor = String(
+            row["Setor"] ?? row["setor"] ?? row["SETOR"] ?? ""
+          ).trim();
+          return { dia, nome, setor };
         }).filter((p) => p.dia && p.nome);
 
         resolve(people);

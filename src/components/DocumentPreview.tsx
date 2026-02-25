@@ -6,7 +6,8 @@ import logo from "@/assets/logo.png";
 import fevereiroBg from "@/assets/fevereiro-bg.png";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Printer, ArrowLeft, ImagePlus } from "lucide-react";
+import { Printer, ArrowLeft, ImagePlus, Home } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface DocumentPreviewProps {
   month: number;
@@ -40,12 +41,14 @@ function getMaxCols(count: number): number {
 }
 
 const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps) => {
+  const navigate = useNavigate();
   const [customBg, setCustomBg] = useState<string | null>(null);
   const [nameAspect, setNameAspect] = useState(3);
-  const [nameWidthPct, setNameWidthPct] = useState(100); // percentage of card width
+  const [nameWidthPct, setNameWidthPct] = useState(100);
   const [gridScale, setGridScale] = useState(100);
-  
-  const [offsetY, setOffsetY] = useState(0); // mm offset from center
+  const [offsetY, setOffsetY] = useState(0);
+  const [offsetX, setOffsetX] = useState(0);
+  const [nameFontSize, setNameFontSize] = useState(10);
   
   const bgInputRef = useRef<HTMLInputElement>(null);
 
@@ -76,9 +79,14 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
       {/* Toolbar */}
       <div className="no-print max-w-[210mm] mx-auto mb-4 flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <Button variant="outline" onClick={onBack} className="gap-2">
-            <ArrowLeft size={16} /> Voltar
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate("/")} className="gap-2">
+              <Home size={16} /> Início
+            </Button>
+            <Button variant="outline" onClick={onBack} className="gap-2">
+              <ArrowLeft size={16} /> Voltar
+            </Button>
+          </div>
           <div className="flex gap-2">
             <Button
               variant="outline"
@@ -129,6 +137,16 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
             <Slider value={[nameWidthPct]} onValueChange={([v]) => setNameWidthPct(v)} min={50} max={125} step={1} className="flex-1" />
             <span className="text-sm text-muted-foreground w-12 text-right">{nameWidthPct}%</span>
           </div>
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-medium whitespace-nowrap">↔️ Posição X:</label>
+            <Slider value={[offsetX]} onValueChange={([v]) => setOffsetX(v)} min={-40} max={40} step={0.5} className="flex-1" />
+            <span className="text-sm text-muted-foreground w-12 text-right">{offsetX}mm</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-medium whitespace-nowrap">🔤 Tamanho Nome:</label>
+            <Slider value={[nameFontSize]} onValueChange={([v]) => setNameFontSize(v)} min={5} max={18} step={0.5} className="flex-1" />
+            <span className="text-sm text-muted-foreground w-12 text-right">{nameFontSize}pt</span>
+          </div>
         </div>
       </div>
 
@@ -160,7 +178,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
           const scaledHeight = BODY_HEIGHT * (gridScale / 100);
           const centerLeft = BODY_LEFT + (BODY_WIDTH - scaledWidth) / 2;
           const centerTop = BODY_TOP + (BODY_HEIGHT - scaledHeight) / 2;
-          const finalLeft = centerLeft;
+          const finalLeft = centerLeft + offsetX;
           const finalTop = centerTop + offsetY;
 
           return (
@@ -190,11 +208,13 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
                       key={index}
                       dia={person.dia}
                       nome={person.nome}
+                      setor={person.setor}
                       borderColor={theme.cardBorder}
                       textColor={theme.textColor}
                       accentColor={cardAccent}
                       nameAspect={nameAspect}
                       nameWidthPct={nameWidthPct}
+                      nameFontSize={nameFontSize}
                     />
                   ))}
                 </div>
@@ -215,11 +235,13 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
                         <PhotoCard
                           dia={person.dia}
                           nome={person.nome}
+                          setor={person.setor}
                           borderColor={theme.cardBorder}
                           textColor={theme.textColor}
                           accentColor={cardAccent}
                           nameAspect={nameAspect}
                           nameWidthPct={nameWidthPct}
+                          nameFontSize={nameFontSize}
                         />
                       </div>
                     );

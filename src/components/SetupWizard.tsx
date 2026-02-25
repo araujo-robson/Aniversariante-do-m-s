@@ -2,13 +2,15 @@ import { useState, useRef } from "react";
 import { monthThemes, type MonthTheme } from "@/lib/monthThemes";
 import { parseExcelFile, type BirthdayPerson } from "@/lib/excelParser";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, ChevronLeft, Upload, FileSpreadsheet, PartyPopper } from "lucide-react";
+import { ChevronRight, ChevronLeft, Upload, FileSpreadsheet, PartyPopper, Home } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface WizardProps {
   onComplete: (month: number, theme: MonthTheme, people: BirthdayPerson[]) => void;
 }
 
 const SetupWizard = ({ onComplete }: WizardProps) => {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [count, setCount] = useState<number>(0);
@@ -39,6 +41,12 @@ const SetupWizard = ({ onComplete }: WizardProps) => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "linear-gradient(135deg, hsl(199 78% 95%), hsl(199 78% 90%))" }}>
       <div className="bg-card rounded-2xl shadow-2xl max-w-2xl w-full p-8 space-y-6">
+        {/* Home button */}
+        <div className="flex justify-start mb-2">
+          <Button variant="outline" size="sm" onClick={() => navigate("/")} className="gap-2">
+            <Home size={16} /> Início
+          </Button>
+        </div>
         {/* Progress */}
         <div className="flex items-center gap-2 mb-6">
           {[1, 2, 3, 4].map((s) => (
@@ -132,7 +140,7 @@ const SetupWizard = ({ onComplete }: WizardProps) => {
               Importar Planilha
             </h2>
             <p className="text-muted-foreground text-sm">
-              Envie uma planilha Excel (.xlsx) com as colunas <strong>"Dia"</strong> e <strong>"Nome"</strong>
+              Envie uma planilha Excel (.xlsx) com as colunas <strong>"Dia"</strong>, <strong>"Nome"</strong> e <strong>"Setor"</strong>
             </p>
             <div
               className="border-2 border-dashed rounded-2xl p-10 cursor-pointer transition-all hover:shadow-lg"
@@ -184,10 +192,10 @@ const SetupWizard = ({ onComplete }: WizardProps) => {
             </p>
             <div className="max-h-40 overflow-y-auto bg-muted rounded-xl p-3 text-sm text-left">
               {people.map((p, i) => (
-                <div key={i} className="flex justify-between py-1 border-b border-border last:border-0">
-                  <span className="font-semibold">Dia {p.dia}</span>
-                  <span>{p.nome}</span>
-                </div>
+                 <div key={i} className="flex justify-between py-1 border-b border-border last:border-0">
+                   <span className="font-semibold">Dia {p.dia}</span>
+                   <span>{p.nome}{p.setor ? ` — ${p.setor}` : ""}</span>
+                 </div>
               ))}
             </div>
             <div className="flex justify-center gap-3">
