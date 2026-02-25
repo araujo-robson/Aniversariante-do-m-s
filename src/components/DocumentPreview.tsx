@@ -1,14 +1,25 @@
 import { useState, useRef } from "react";
 import type { MonthTheme } from "@/lib/monthThemes";
 import type { BirthdayPerson } from "@/lib/excelParser";
+import { exportProject } from "@/lib/projectExport";
 import PhotoCard from "@/components/PhotoCard";
 import logo from "@/assets/logo.png";
 import fevereiroBg from "@/assets/fevereiro-bg.png";
 import marcoBg from "@/assets/marco-bg.png";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Printer, ArrowLeft, ImagePlus, Home } from "lucide-react";
+import { Printer, ArrowLeft, ImagePlus, Home, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface DocumentPreviewProps {
   month: number;
@@ -90,7 +101,20 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
     reader.readAsDataURL(file);
   };
 
-  const handlePrint = () => {
+  const [showExportDialog, setShowExportDialog] = useState(false);
+
+  const handlePrintClick = () => {
+    setShowExportDialog(true);
+  };
+
+  const handleExportAndPrint = () => {
+    exportProject(month, people);
+    setShowExportDialog(false);
+    setTimeout(() => window.print(), 300);
+  };
+
+  const handlePrintOnly = () => {
+    setShowExportDialog(false);
     window.print();
   };
 
@@ -145,7 +169,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
               }}
             />
             <Button
-              onClick={handlePrint}
+              onClick={handlePrintClick}
               className="gap-2 text-white px-6 py-3 rounded-xl text-lg shadow-lg"
               style={{ backgroundColor: theme.primaryColor }}
             >
@@ -307,6 +331,24 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
           );
         })()}
       </div>
+
+      {/* Export dialog */}
+      <AlertDialog open={showExportDialog} onOpenChange={setShowExportDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Exportar projeto?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Deseja exportar este projeto como arquivo antes de imprimir? Assim você poderá importá-lo novamente no futuro.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handlePrintOnly}>Apenas Imprimir</AlertDialogCancel>
+            <AlertDialogAction onClick={handleExportAndPrint} className="gap-2">
+              <Download size={16} /> Exportar e Imprimir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

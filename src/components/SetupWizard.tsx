@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
 import { monthThemes, type MonthTheme } from "@/lib/monthThemes";
 import { parseExcelFile, type BirthdayPerson } from "@/lib/excelParser";
+import { importProject } from "@/lib/projectExport";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, ChevronLeft, Upload, FileSpreadsheet, PartyPopper, Home } from "lucide-react";
+import { ChevronRight, ChevronLeft, Upload, FileSpreadsheet, PartyPopper, Home, FolderOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface WizardProps {
@@ -20,6 +21,21 @@ const SetupWizard = ({ onComplete, initialStep, initialMonth, initialCount }: Wi
   const [people, setPeople] = useState<BirthdayPerson[]>([]);
   const [error, setError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const importRef = useRef<HTMLInputElement>(null);
+  const [importError, setImportError] = useState("");
+
+  const handleImportProject = async (file: File) => {
+    setImportError("");
+    try {
+      const data = await importProject(file);
+      setSelectedMonth(data.month);
+      setCount(data.people.length);
+      setPeople(data.people);
+      setStep(4);
+    } catch (e: unknown) {
+      setImportError(e instanceof Error ? e.message : "Erro ao importar projeto.");
+    }
+  };
 
   const handleFileUpload = async (file: File) => {
     setError("");
@@ -92,6 +108,26 @@ const SetupWizard = ({ onComplete, initialStep, initialMonth, initialCount }: Wi
                 </button>
               ))}
             </div>
+            <div className="flex justify-center pt-2">
+              <Button
+                variant="outline"
+                onClick={() => importRef.current?.click()}
+                className="gap-2"
+              >
+                <FolderOpen size={16} /> Importar Projeto
+              </Button>
+              <input
+                ref={importRef}
+                type="file"
+                accept=".json"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleImportProject(file);
+                }}
+              />
+            </div>
+            {importError && <p className="text-destructive text-sm text-center">{importError}</p>}
           </div>
         )}
 
