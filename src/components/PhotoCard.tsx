@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, type DragEvent } from "react";
 import Cropper, { type Area } from "react-easy-crop";
-import { removeBackground } from "@imgly/background-removal";
+// Dynamic import to avoid blocking app load
+const removeBackgroundLazy = () => import("@imgly/background-removal").then(m => m.removeBackground);
 
 interface PhotoCardProps {
   dia: string;
@@ -51,6 +52,7 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, removeBgEna
     try {
       const response = await fetch(dataUrl);
       const blob = await response.blob();
+      const removeBackground = await removeBackgroundLazy();
       const resultBlob = await removeBackground(blob, {
         output: { format: "image/png" as const },
       });
