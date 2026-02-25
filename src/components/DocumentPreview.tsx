@@ -4,6 +4,7 @@ import type { BirthdayPerson } from "@/lib/excelParser";
 import PhotoCard from "@/components/PhotoCard";
 import logo from "@/assets/logo.png";
 import fevereiroBg from "@/assets/fevereiro-bg.png";
+import marcoBg from "@/assets/marco-bg.png";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Printer, ArrowLeft, ImagePlus, Home } from "lucide-react";
@@ -16,21 +17,25 @@ interface DocumentPreviewProps {
   onBack: () => void;
 }
 
-// Margins in mm (converted from cm)
-const MARGIN_TOP = 65;    // 6.5cm
-const MARGIN_BOTTOM = 60; // 6.0cm
-const MARGIN_LEFT = 16;   // 1.6cm
-const MARGIN_RIGHT = 16;  // 1.6cm
+// Margins in mm
+const MARGIN_TOP = 65;
+const MARGIN_BOTTOM = 60;
+const MARGIN_LEFT = 16;
+const MARGIN_RIGHT = 16;
 
 // Body area dimensions in mm
-const BODY_WIDTH = 210 - MARGIN_LEFT - MARGIN_RIGHT;  // 178mm
-const BODY_HEIGHT = 297 - MARGIN_TOP - MARGIN_BOTTOM;  // 172mm
+const BODY_WIDTH = 210 - MARGIN_LEFT - MARGIN_RIGHT;
+const BODY_HEIGHT = 297 - MARGIN_TOP - MARGIN_BOTTOM;
 const BODY_LEFT = MARGIN_LEFT;
 const BODY_TOP = MARGIN_TOP;
 const GAP = 2;
 
+// Background margin for print safety (5mm = 0.5cm on all sides)
+const BG_MARGIN = 5;
+
 const defaultBgImages: Record<string, string> = {
   fevereiro: fevereiroBg,
+  marco: marcoBg,
 };
 
 function getMaxCols(count: number): number {
@@ -42,7 +47,13 @@ function getMaxCols(count: number): number {
 
 const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps) => {
   const navigate = useNavigate();
-  const [customBg, setCustomBg] = useState<string | null>(null);
+
+  // Load saved custom bg from localStorage
+  const savedBg = (() => {
+    try { return localStorage.getItem(`bg-custom-${month}`); } catch { return null; }
+  })();
+
+  const [customBg, setCustomBg] = useState<string | null>(savedBg);
   const [nameAspect, setNameAspect] = useState(3);
   const [nameWidthPct, setNameWidthPct] = useState(100);
   const [gridScale, setGridScale] = useState(100);
@@ -62,7 +73,9 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
     if (!file.type.startsWith("image/")) return;
     const reader = new FileReader();
     reader.onload = (e) => {
-      setCustomBg(e.target?.result as string);
+      const data = e.target?.result as string;
+      setCustomBg(data);
+      try { localStorage.setItem(`bg-custom-${month}`, data); } catch { /* full */ }
     };
     reader.readAsDataURL(file);
   };
@@ -71,8 +84,12 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
     window.print();
   };
 
-  // Use primaryColor as the accent for circles and name rectangles
   const cardAccent = theme.primaryColor;
+
+  // Background with 5mm margins for print safety
+  const bgStyle = bgImageUrl
+    ? `url(${bgImageUrl}) ${BG_MARGIN}mm ${BG_MARGIN}mm / ${210 - BG_MARGIN * 2}mm ${297 - BG_MARGIN * 2}mm no-repeat white`
+    : theme.bgGradient;
 
   return (
     <div className="print-page-wrapper min-h-screen py-8 px-4" style={{ background: "hsl(220 14% 92%)" }}>
@@ -153,11 +170,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
       {/* A4 Page */}
       <div
         className="a4-page print-page mx-auto relative"
-        style={{
-          background: bgImageUrl
-            ? `url(${bgImageUrl}) center center / 210mm 297mm no-repeat white`
-            : theme.bgGradient,
-        }}
+        style={{ background: bgStyle }}
       >
         {/* Decorative corners - hide when bg image */}
         {!hasBgImage && !customBg && (
@@ -167,7 +180,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
           </>
         )}
 
-        {/* Photo Grid Body - fixed position and dimensions */}
+        {/* Photo Grid Body */}
         {(() => {
           const totalRows = Math.ceil(people.length / cols);
           const lastRowCount = people.length % cols || cols;
@@ -194,7 +207,6 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
                 gap: `${GAP}mm`,
               }}
             >
-              {/* Full rows grid */}
               {fullRows.length > 0 && (
                 <div
                   style={{
@@ -215,11 +227,11 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
                       nameAspect={nameAspect}
                       nameWidthPct={nameWidthPct}
                       nameFontSize={nameFontSize}
+                      storageKey={`${month}-${index}`}
                     />
                   ))}
                 </div>
               )}
-              {/* Last row centered */}
               {lastRow.length > 0 && (
                 <div
                   style={{
@@ -230,8 +242,9 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
                 >
                   {lastRow.map((person, index) => {
                     const cardWidth = `calc((${scaledWidth}mm - ${(cols - 1) * GAP}mm) / ${cols})`;
+                    const globalIndex = fullRows.length + index;
                     return (
-                      <div key={fullRows.length + index} style={{ width: cardWidth }}>
+                      <div key={globalIndex} style={{ width: cardWidth }}>
                         <PhotoCard
                           dia={person.dia}
                           nome={person.nome}
@@ -242,6 +255,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
                           nameAspect={nameAspect}
                           nameWidthPct={nameWidthPct}
                           nameFontSize={nameFontSize}
+                          storageKey={`${month}-${globalIndex}`}
                         />
                       </div>
                     );

@@ -1,5 +1,4 @@
-import { useState, useCallback, useRef, useEffect, type DragEvent } from "react";
-import Cropper, { type Area } from "react-easy-crop";
+import { useState, useCallback, useRef, useEffect, type DragEvent, type MouseEvent, type KeyboardEvent } from "react";
 
 interface PhotoCardProps {
   dia: string;
@@ -11,61 +10,49 @@ interface PhotoCardProps {
   nameAspect?: number;
   nameWidthPct?: number;
   nameFontSize?: number;
+  storageKey?: string;
 }
 
-function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<string> {
-  return new Promise((resolve) => {
-    const image = new Image();
-    image.crossOrigin = "anonymous";
-    image.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = pixelCrop.width;
-      canvas.height = pixelCrop.height;
-      const ctx = canvas.getContext("2d")!;
-      // Clear canvas to ensure transparency is preserved
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(
-        image,
-        pixelCrop.x,
-        pixelCrop.y,
-        pixelCrop.width,
-        pixelCrop.height,
-        0,
-        0,
-        pixelCrop.width,
-        pixelCrop.height
-      );
-      resolve(canvas.toDataURL("image/png"));
-    };
-    image.src = imageSrc;
-  });
-}
+const PhotoCard = ({
+  dia, nome, setor, borderColor, textColor, accentColor,
+  nameAspect = 3, nameWidthPct = 100, nameFontSize = 10, storageKey,
+}: PhotoCardProps) => {
+  // Load saved state from localStorage
+  const savedState = storageKey ? (() => {
+    try {
+      const saved = localStorage.getItem(`photocard-${storageKey}`);
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
+  })() : null;
 
-const PhotoCard = ({ dia, nome, setor, borderColor, textColor, accentColor, nameAspect = 3, nameWidthPct = 100, nameFontSize = 10 }: PhotoCardProps) => {
-  const [image, setImage] = useState<string | null>(null);
-  const [croppedImage, setCroppedImage] = useState<string | null>(null);
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [isCropping, setIsCropping] = useState(false);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [image, setImage] = useState<string | null>(savedState?.image || null);
+  const [imgOffset, setImgOffset] = useState({ x: savedState?.offsetX || 0, y: savedState?.offsetY || 0 });
+  const [imgScale, setImgScale] = useState(savedState?.scale || 1);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef({ x: 0, y: 0, offsetX: 0, offsetY: 0 });
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const nameContainerRef = useRef<HTMLDivElement>(null);
   const nameTextRef = useRef<HTMLDivElement>(null);
 
-  // Auto-shrink font size to fit name within container
+  // Save to localStorage
+  useEffect(() => {
+    if (!storageKey || !image) return;
+    try {
+      localStorage.setItem(`photocard-${storageKey}`, JSON.stringify({
+        image, offsetX: imgOffset.x, offsetY: imgOffset.y, scale: imgScale,
+      }));
+    } catch { /* localStorage full */ }
+  }, [storageKey, image, imgOffset, imgScale]);
+
+  // Auto-shrink font size
   useEffect(() => {
     const container = nameContainerRef.current;
     const textEl = nameTextRef.current;
     if (!container || !textEl) return;
-
-    // Reset font size
     textEl.style.fontSize = `${nameFontSize}pt`;
-    
     let size = nameFontSize;
-    const minSize = 5;
-    
-    // Shrink until text fits or min reached
-    while (size > minSize && (textEl.scrollHeight > container.clientHeight || textEl.scrollWidth > container.clientWidth)) {
+    while (size > 5 && (textEl.scrollHeight > container.clientHeight || textEl.scrollWidth > container.clientWidth)) {
       size -= 0.5;
       textEl.style.fontSize = `${size}pt`;
     }
@@ -76,10 +63,8 @@ const PhotoCard = ({ dia, nome, setor, borderColor, textColor, accentColor, name
     const reader = new FileReader();
     reader.onload = (e) => {
       setImage(e.target?.result as string);
-      setCroppedImage(null);
-      setIsCropping(true);
-      setCrop({ x: 0, y: 0 });
-      setZoom(1);
+      setImgOffset({ x: 0, y: 0 });
+      setImgScale(1);
     };
     reader.readAsDataURL(file);
   };
@@ -90,131 +75,118 @@ const PhotoCard = ({ dia, nome, setor, borderColor, textColor, accentColor, name
     if (file) handleFile(file);
   };
 
-  const onCropComplete = useCallback((_: Area, croppedPixels: Area) => {
-    setCroppedAreaPixels(croppedPixels);
+  // Mouse drag
+  const handleMouseDown = (e: MouseEvent) => {
+    if (!image) return;
+    e.preventDefault();
+    setIsDragging(true);
+    dragStartRef.current = { x: e.clientX, y: e.clientY, offsetX: imgOffset.x, offsetY: imgOffset.y };
+    containerRef.current?.focus();
+  };
+
+  const handleMouseMove = useCallback((e: globalThis.MouseEvent) => {
+    if (!isDragging) return;
+    const dx = e.clientX - dragStartRef.current.x;
+    const dy = e.clientY - dragStartRef.current.y;
+    setImgOffset({ x: dragStartRef.current.offsetX + dx, y: dragStartRef.current.offsetY + dy });
+  }, [isDragging]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
   }, []);
 
-  const handleConfirmCrop = async () => {
-    if (image && croppedAreaPixels) {
-      const cropped = await getCroppedImg(image, croppedAreaPixels);
-      setCroppedImage(cropped);
-      setIsCropping(false);
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
+      return () => {
+        window.removeEventListener("mousemove", handleMouseMove);
+        window.removeEventListener("mouseup", handleMouseUp);
+      };
+    }
+  }, [isDragging, handleMouseMove, handleMouseUp]);
+
+  // Keyboard controls
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (!image) return;
+    const moveStep = 2;
+    const zoomStep = 0.03;
+    switch (e.key) {
+      case "ArrowUp": e.preventDefault(); setImgOffset(p => ({ ...p, y: p.y - moveStep })); break;
+      case "ArrowDown": e.preventDefault(); setImgOffset(p => ({ ...p, y: p.y + moveStep })); break;
+      case "ArrowLeft": e.preventDefault(); setImgOffset(p => ({ ...p, x: p.x - moveStep })); break;
+      case "ArrowRight": e.preventDefault(); setImgOffset(p => ({ ...p, x: p.x + moveStep })); break;
+      case "+": case "=": e.preventDefault(); setImgScale(s => Math.min(5, s + zoomStep)); break;
+      case "-": case "_": e.preventDefault(); setImgScale(s => Math.max(0.1, s - zoomStep)); break;
     }
   };
 
   const handleResetImage = () => {
     setImage(null);
-    setCroppedImage(null);
-    setIsCropping(false);
+    setImgOffset({ x: 0, y: 0 });
+    setImgScale(1);
+    if (storageKey) localStorage.removeItem(`photocard-${storageKey}`);
   };
-
 
   return (
     <div className="photo-card-wrapper flex flex-col items-center w-full relative" style={{ paddingTop: "4.25mm" }}>
-
-      {/* Photo frame wrapper - no overflow hidden so circle can overflow */}
-      <div
-        className="relative w-full"
-        style={{
-          aspectRatio: "3 / 4",
-        }}
-      >
-        {/* Day - circle overlapping top-left corner */}
+      <div className="relative w-full" style={{ aspectRatio: "3 / 4" }}>
+        {/* Day circle */}
         <div
           className="day-circle absolute flex items-center justify-center rounded-full font-bold"
           style={{
-            fontFamily: "var(--font-display)",
-            color: "white",
-            backgroundColor: accentColor,
-            border: "0.25mm solid black",
-            width: "8.5mm",
-            height: "8.5mm",
-            fontSize: "14pt",
-            lineHeight: 1,
-            top: "-4.25mm",
-            left: "-4.25mm",
-            zIndex: 30,
+            fontFamily: "var(--font-display)", color: "white", backgroundColor: accentColor,
+            border: "0.25mm solid black", width: "8.5mm", height: "8.5mm", fontSize: "14pt",
+            lineHeight: 1, top: "-4.25mm", left: "-4.25mm", zIndex: 30,
           }}
         >
           {dia}
         </div>
 
-        {/* Photo frame inner - clips photo content */}
+        {/* Photo frame */}
         <div
-          className="relative overflow-hidden w-full h-full"
+          ref={containerRef}
+          tabIndex={0}
+          className="relative overflow-hidden w-full h-full outline-none"
           style={{
             border: `2px solid ${borderColor}`,
             borderRadius: "5px",
-            cursor: croppedImage ? "default" : "pointer",
+            cursor: image ? (isDragging ? "grabbing" : "grab") : "pointer",
           }}
           onDrop={onDrop}
           onDragOver={(e) => e.preventDefault()}
-          onClick={() => {
-            if (!image && !croppedImage) inputRef.current?.click();
-          }}
+          onClick={() => { if (!image) inputRef.current?.click(); }}
+          onMouseDown={image ? handleMouseDown : undefined}
+          onKeyDown={handleKeyDown}
         >
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) handleFile(file);
-          }}
-        />
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleFile(file);
+            }}
+          />
 
-        {/* Cropping mode */}
-        {isCropping && image && (
-          <div className="absolute inset-0 z-10">
-            <Cropper
-              image={image}
-              crop={crop}
-              zoom={zoom}
-              aspect={3 / 4}
-              onCropChange={setCrop}
-              onZoomChange={setZoom}
-              onCropComplete={onCropComplete}
-              style={{
-                containerStyle: { width: "100%", height: "100%", position: "absolute" },
-              }}
-            />
-            <div className="absolute bottom-0 left-0 right-0 flex gap-0.5 z-20 p-0.5 no-print">
-              <button
-                onClick={(e) => { e.stopPropagation(); handleConfirmCrop(); }}
-                className="flex-1 text-white py-0.5 rounded"
-                style={{ backgroundColor: accentColor, fontSize: "10pt" }}
+          {image && (
+            <>
+              <img
+                src={image}
+                alt={nome}
+                draggable={false}
+                className="absolute w-full h-full object-cover select-none"
+                style={{
+                  transform: `translate(${imgOffset.x}px, ${imgOffset.y}px) scale(${imgScale})`,
+                  transition: isDragging ? "none" : "transform 0.15s ease-out",
+                  transformOrigin: "center center",
+                }}
+              />
+              <div
+                className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/30 no-print"
+                style={{ pointerEvents: isDragging ? "none" : "auto" }}
               >
-                ✓
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); handleResetImage(); }}
-                className="flex-1 bg-gray-500 text-white py-0.5 rounded"
-                style={{ fontSize: "10pt" }}
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Cropped result */}
-        {croppedImage && !isCropping && (
-          <>
-            <img
-              src={croppedImage}
-              alt={nome}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/30 no-print">
-              <div className="flex gap-1">
-                <button
-                  onClick={(e) => { e.stopPropagation(); setIsCropping(true); }}
-                  className="text-white bg-black/60 px-1 py-0.5 rounded"
-                  style={{ fontSize: "10pt" }}
-                >
-                  ✂️
-                </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); handleResetImage(); }}
                   className="text-white bg-black/60 px-1 py-0.5 rounded"
@@ -223,68 +195,38 @@ const PhotoCard = ({ dia, nome, setor, borderColor, textColor, accentColor, name
                   🗑
                 </button>
               </div>
+            </>
+          )}
+
+          {!image && (
+            <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50/80">
+              <span style={{ fontSize: "16px", opacity: 0.25 }}>📷</span>
+              <span className="text-muted-foreground no-print" style={{ fontSize: "10pt" }}>Clique</span>
             </div>
-          </>
-        )}
-
-
-        {/* Empty state */}
-        {!image && !croppedImage && (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50/80">
-            <span style={{ fontSize: "16px", opacity: 0.25 }}>📷</span>
-            <span className="text-muted-foreground no-print" style={{ fontSize: "10pt" }}>
-              Clique
-            </span>
-          </div>
-        )}
+          )}
         </div>
       </div>
 
-      {/* Name - 3:1 rectangle */}
+      {/* Name */}
       <div
         ref={nameContainerRef}
         className="name-rect flex items-center justify-center font-bold text-center mt-0.5"
         style={{
-          fontFamily: "'Anton', sans-serif",
-          color: "white",
-          backgroundColor: accentColor,
-          borderRadius: "3px",
-          border: "0.25mm solid black",
-          lineHeight: 1.2,
-          aspectRatio: `${nameAspect} / 1`,
-          padding: "1px 2px",
-          overflow: "hidden",
-          width: `${nameWidthPct}%`,
+          fontFamily: "'Anton', sans-serif", color: "white", backgroundColor: accentColor,
+          borderRadius: "3px", border: "0.25mm solid black", lineHeight: 1.2,
+          aspectRatio: `${nameAspect} / 1`, padding: "1px 2px", overflow: "hidden", width: `${nameWidthPct}%`,
         }}
       >
         <div
           ref={nameTextRef}
           style={{
-            fontSize: `${nameFontSize}pt`,
-            width: "100%",
-            overflow: "hidden",
-            wordBreak: "break-word",
-            textOverflow: "ellipsis",
-            lineHeight: 1.1,
+            fontSize: `${nameFontSize}pt`, width: "100%", overflow: "hidden",
+            wordBreak: "break-word", textOverflow: "ellipsis", lineHeight: 1.1,
           }}
         >
-          <div style={{
-            display: "-webkit-box",
-            WebkitLineClamp: 1,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-          }}>{nome}</div>
+          <div style={{ display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{nome}</div>
           {setor && (
-            <div style={{
-              fontSize: "1em",
-              fontWeight: 700,
-              opacity: 0.9,
-              marginTop: "1px",
-              display: "-webkit-box",
-              WebkitLineClamp: 1,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-            }}>{setor}</div>
+            <div style={{ fontSize: "1em", fontWeight: 700, opacity: 0.9, marginTop: "1px", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{setor}</div>
           )}
         </div>
       </div>

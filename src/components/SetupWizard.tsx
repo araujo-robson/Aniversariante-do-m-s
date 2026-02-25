@@ -7,13 +7,16 @@ import { useNavigate } from "react-router-dom";
 
 interface WizardProps {
   onComplete: (month: number, theme: MonthTheme, people: BirthdayPerson[]) => void;
+  initialStep?: number;
+  initialMonth?: number;
+  initialCount?: number;
 }
 
-const SetupWizard = ({ onComplete }: WizardProps) => {
+const SetupWizard = ({ onComplete, initialStep, initialMonth, initialCount }: WizardProps) => {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
-  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
-  const [count, setCount] = useState<number>(0);
+  const [step, setStep] = useState(initialStep || 1);
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(initialMonth ?? null);
+  const [count, setCount] = useState<number>(initialCount ?? 0);
   const [people, setPeople] = useState<BirthdayPerson[]>([]);
   const [error, setError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
