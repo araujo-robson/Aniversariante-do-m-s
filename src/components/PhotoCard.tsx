@@ -7,6 +7,7 @@ interface PhotoCardProps {
   borderColor: string;
   textColor: string;
   accentColor: string;
+  nameAspect?: number;
 }
 
 function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<string> {
@@ -37,7 +38,7 @@ function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<string> {
   });
 }
 
-const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor }: PhotoCardProps) => {
+const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, nameAspect = 3 }: PhotoCardProps) => {
   const [image, setImage] = useState<string | null>(null);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -227,7 +228,7 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor }: PhotoCard
           borderRadius: "3px",
           fontSize: "10pt",
           lineHeight: 1.2,
-          aspectRatio: "3 / 1",
+          aspectRatio: `${nameAspect} / 1`,
           padding: "1px 2px",
           overflow: "hidden",
         }}
