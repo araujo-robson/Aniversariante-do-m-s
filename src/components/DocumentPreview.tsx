@@ -136,10 +136,26 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
         className="a4-page print-page mx-auto relative"
         style={{
           background: bgImageUrl
-            ? `url(${bgImageUrl}) center/cover no-repeat`
+            ? undefined
             : theme.bgGradient,
         }}
       >
+        {/* Background image with 1.5cm margins */}
+        {bgImageUrl && (
+          <div
+            style={{
+              position: "absolute",
+              top: "15mm",
+              left: "15mm",
+              right: "15mm",
+              bottom: "15mm",
+              backgroundImage: `url(${bgImageUrl})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+          />
+        )}
         {/* Decorative corners - hide when bg image */}
         {!hasBgImage && !customBg && (
           <>
