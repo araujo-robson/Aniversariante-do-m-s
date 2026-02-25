@@ -151,7 +151,6 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
                       borderColor={theme.cardBorder}
                       textColor={theme.textColor}
                       accentColor={theme.accentColor}
-                      removeBgEnabled={true}
                     />
                   ))}
                 </div>
@@ -176,7 +175,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
                           borderColor={theme.cardBorder}
                           textColor={theme.textColor}
                           accentColor={theme.accentColor}
-                          removeBgEnabled={true}
+                          
                         />
                       </div>
                     );
