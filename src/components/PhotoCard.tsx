@@ -255,6 +255,7 @@ const PhotoCard = ({
                   if (e.key === "Enter") { onNameChange?.(editNome, editSetor, dia); setIsEditingName(false); }
                   if (e.key === "Escape") { setEditNome(nome); setEditSetor(setor || ""); setIsEditingName(false); }
                 }}
+                onBlur={() => { onNameChange?.(editNome, editSetor, dia); setIsEditingName(false); }}
                 style={{ background: "rgba(255,255,255,0.9)", color: "#000", border: "1px solid #666", borderRadius: "2px", fontSize: "inherit", fontFamily: "inherit", padding: "1px 3px", width: "100%", textAlign: "center" }}
                 placeholder="Nome"
               />
