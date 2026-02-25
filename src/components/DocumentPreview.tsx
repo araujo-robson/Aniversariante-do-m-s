@@ -93,24 +93,27 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
 
   const [pageZoom, setPageZoom] = useState(1);
 
-  const handleWheel = (e: React.WheelEvent) => {
-    if (e.ctrlKey || e.metaKey) return;
-    e.preventDefault();
-    setPageZoom(z => Math.min(2, Math.max(0.3, z + (e.deltaY > 0 ? -0.05 : 0.05))));
-  };
-
   return (
-    <div className="print-page-wrapper min-h-screen py-8 px-4" style={{ background: "hsl(220 14% 92%)" }} onWheel={handleWheel}>
+    <div className="print-page-wrapper min-h-screen py-8 px-4" style={{ background: "hsl(220 14% 92%)" }}>
       {/* Toolbar */}
       <div className="no-print max-w-[210mm] mx-auto mb-4 flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <Button variant="outline" onClick={() => navigate("/")} className="gap-2">
               <Home size={16} /> Início
             </Button>
             <Button variant="outline" onClick={onBack} className="gap-2">
               <ArrowLeft size={16} /> Voltar
             </Button>
+            <div className="flex items-center gap-1 ml-2">
+              <Button variant="outline" size="icon" onClick={() => setPageZoom(z => Math.max(0.3, z - 0.1))} title="Diminuir zoom">
+                −
+              </Button>
+              <span className="text-xs w-10 text-center select-none">{Math.round(pageZoom * 100)}%</span>
+              <Button variant="outline" size="icon" onClick={() => setPageZoom(z => Math.min(2, z + 0.1))} title="Aumentar zoom">
+                +
+              </Button>
+            </div>
           </div>
           <div className="flex gap-2">
             <Button
