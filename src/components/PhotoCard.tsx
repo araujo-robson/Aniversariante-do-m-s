@@ -8,6 +8,7 @@ interface PhotoCardProps {
   borderColor: string;
   textColor: string;
   accentColor: string;
+  removeBgEnabled?: boolean;
 }
 
 function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<string> {
@@ -29,13 +30,13 @@ function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<string> {
         pixelCrop.width,
         pixelCrop.height
       );
-      resolve(canvas.toDataURL("image/jpeg", 0.9));
+      resolve(canvas.toDataURL("image/png"));
     };
     image.src = imageSrc;
   });
 }
 
-const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor }: PhotoCardProps) => {
+const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, removeBgEnabled = true }: PhotoCardProps) => {
   const [image, setImage] = useState<string | null>(null);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -67,7 +68,7 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor }: PhotoCard
     const reader = new FileReader();
     reader.onload = async (e) => {
       const originalDataUrl = e.target?.result as string;
-      const processedUrl = await removeBg(originalDataUrl);
+      const processedUrl = removeBgEnabled ? await removeBg(originalDataUrl) : originalDataUrl;
       setImage(processedUrl);
       setCroppedImage(null);
       setIsCropping(true);

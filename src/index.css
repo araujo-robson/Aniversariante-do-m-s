@@ -63,6 +63,14 @@
     width: 210mm !important;
     height: 297mm !important;
     overflow: hidden !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
   }
   .no-print {
     display: none !important;
@@ -81,10 +89,13 @@
     page-break-inside: avoid;
     overflow: hidden !important;
     position: relative !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
   }
   @page {
     size: A4 portrait;
-    margin: 10mm;
+    margin: 0;
   }
   /* Hide all interactive elements */
   button, input, .crop-container {
