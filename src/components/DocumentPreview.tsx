@@ -135,31 +135,33 @@ const DocumentPreview = ({ month, theme, people: initialPeople, onBack }: Docume
     <div className="print-page-wrapper min-h-screen py-8 px-4" style={{ background: "hsl(220 14% 92%)" }}>
       {/* Toolbar */}
       <div className="no-print max-w-[210mm] mx-auto mb-4 flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <div className="flex gap-2 items-center">
-            <Button variant="outline" onClick={() => navigate("/")} className="gap-2">
-              <Home size={16} /> Início
+        {/* Top row: navigation + actions */}
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap gap-2 items-center">
+            <Button variant="outline" size="sm" onClick={() => navigate("/")} className="gap-1">
+              <Home size={14} /> Início
             </Button>
-            <Button variant="outline" onClick={onBack} className="gap-2">
-              <ArrowLeft size={16} /> Voltar
+            <Button variant="outline" size="sm" onClick={onBack} className="gap-1">
+              <ArrowLeft size={14} /> Voltar
             </Button>
-            <div className="flex items-center gap-1 ml-2">
-              <Button variant="outline" size="icon" onClick={() => setPageZoom(z => Math.max(0.3, z - 0.1))} title="Diminuir zoom">
+            <div className="flex items-center gap-1">
+              <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setPageZoom(z => Math.max(0.3, z - 0.1))} title="Diminuir zoom">
                 −
               </Button>
               <span className="text-xs w-10 text-center select-none">{Math.round(pageZoom * 100)}%</span>
-              <Button variant="outline" size="icon" onClick={() => setPageZoom(z => Math.min(2, z + 0.1))} title="Aumentar zoom">
+              <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setPageZoom(z => Math.min(2, z + 0.1))} title="Aumentar zoom">
                 +
               </Button>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button
               variant="outline"
+              size="sm"
               onClick={() => bgInputRef.current?.click()}
-              className="gap-2"
+              className="gap-1"
             >
-              <ImagePlus size={16} /> Alterar Plano de Fundo
+              <ImagePlus size={14} /> Plano de Fundo
             </Button>
             <input
               ref={bgInputRef}
@@ -172,46 +174,47 @@ const DocumentPreview = ({ month, theme, people: initialPeople, onBack }: Docume
               }}
             />
             <Button
+              size="sm"
               onClick={handlePrintClick}
-              className="gap-2 text-white px-6 py-3 rounded-xl text-lg shadow-lg"
+              className="gap-1 text-white rounded-xl shadow-lg"
               style={{ backgroundColor: theme.primaryColor }}
             >
-              <Printer size={20} /> Finalizar e Imprimir
+              <Printer size={14} /> Imprimir
             </Button>
           </div>
         </div>
 
         {/* Adjustment sliders */}
-        <div className="grid grid-cols-2 gap-x-6 gap-y-2 bg-white rounded-lg px-4 py-3 shadow-sm">
-          <div className="flex items-center gap-3">
-            <label className="text-sm font-medium whitespace-nowrap">📐 Tamanho Grid:</label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 bg-white rounded-lg px-4 py-3 shadow-sm">
+          <div className="flex items-center gap-2">
+            <label className="text-xs sm:text-sm font-medium whitespace-nowrap">📐 Grid:</label>
             <Slider value={[gridScale]} onValueChange={([v]) => setGridScale(v)} min={60} max={120} step={1} className="flex-1" />
-            <span className="text-sm text-muted-foreground w-12 text-right">{gridScale}%</span>
+            <span className="text-xs text-muted-foreground w-10 text-right">{gridScale}%</span>
           </div>
-          <div className="flex items-center gap-3">
-            <label className="text-sm font-medium whitespace-nowrap">📝 Altura Nome:</label>
+          <div className="flex items-center gap-2">
+            <label className="text-xs sm:text-sm font-medium whitespace-nowrap">📝 Alt. Nome:</label>
             <Slider value={[nameAspect]} onValueChange={([v]) => setNameAspect(v)} min={1.5} max={5} step={0.25} className="flex-1" />
-            <span className="text-sm text-muted-foreground w-12 text-right">{nameAspect}:1</span>
+            <span className="text-xs text-muted-foreground w-10 text-right">{nameAspect}:1</span>
           </div>
-          <div className="flex items-center gap-3">
-            <label className="text-sm font-medium whitespace-nowrap">↕️ Posição Y:</label>
+          <div className="flex items-center gap-2">
+            <label className="text-xs sm:text-sm font-medium whitespace-nowrap">↕️ Pos. Y:</label>
             <Slider value={[offsetY]} onValueChange={([v]) => setOffsetY(v)} min={-40} max={40} step={0.5} className="flex-1" />
-            <span className="text-sm text-muted-foreground w-12 text-right">{offsetY}mm</span>
+            <span className="text-xs text-muted-foreground w-10 text-right">{offsetY}mm</span>
           </div>
-          <div className="flex items-center gap-3">
-            <label className="text-sm font-medium whitespace-nowrap">📏 Largura Nome:</label>
+          <div className="flex items-center gap-2">
+            <label className="text-xs sm:text-sm font-medium whitespace-nowrap">📏 Larg. Nome:</label>
             <Slider value={[nameWidthPct]} onValueChange={([v]) => setNameWidthPct(v)} min={50} max={125} step={1} className="flex-1" />
-            <span className="text-sm text-muted-foreground w-12 text-right">{nameWidthPct}%</span>
+            <span className="text-xs text-muted-foreground w-10 text-right">{nameWidthPct}%</span>
           </div>
-          <div className="flex items-center gap-3">
-            <label className="text-sm font-medium whitespace-nowrap">↔️ Posição X:</label>
+          <div className="flex items-center gap-2">
+            <label className="text-xs sm:text-sm font-medium whitespace-nowrap">↔️ Pos. X:</label>
             <Slider value={[offsetX]} onValueChange={([v]) => setOffsetX(v)} min={-40} max={40} step={0.5} className="flex-1" />
-            <span className="text-sm text-muted-foreground w-12 text-right">{offsetX}mm</span>
+            <span className="text-xs text-muted-foreground w-10 text-right">{offsetX}mm</span>
           </div>
-          <div className="flex items-center gap-3">
-            <label className="text-sm font-medium whitespace-nowrap">🔤 Tamanho Nome:</label>
+          <div className="flex items-center gap-2">
+            <label className="text-xs sm:text-sm font-medium whitespace-nowrap">🔤 Tam. Nome:</label>
             <Slider value={[nameFontSize]} onValueChange={([v]) => setNameFontSize(v)} min={5} max={18} step={0.5} className="flex-1" />
-            <span className="text-sm text-muted-foreground w-12 text-right">{nameFontSize}pt</span>
+            <span className="text-xs text-muted-foreground w-10 text-right">{nameFontSize}pt</span>
           </div>
         </div>
       </div>
