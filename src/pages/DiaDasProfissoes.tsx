@@ -1,4 +1,7 @@
 import { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Home } from "lucide-react";
 import StepSearch from "@/components/profissoes/StepSearch";
 import StepEditor from "@/components/profissoes/StepEditor";
 import StepFormat from "@/components/profissoes/StepFormat";
@@ -27,6 +30,7 @@ export interface PrintFormat {
 }
 
 const DiaDasProfissoes = () => {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [finalImage, setFinalImage] = useState<string | null>(null);
@@ -52,6 +56,11 @@ const DiaDasProfissoes = () => {
       {/* Progress bar */}
       <div className="no-print sticky top-0 z-50 bg-card border-b border-border px-4 py-3">
         <div className="max-w-4xl mx-auto">
+          <div className="flex items-center gap-2 mb-2">
+            <Button variant="outline" size="sm" onClick={() => navigate("/")} className="gap-2">
+              <Home size={16} /> Início
+            </Button>
+          </div>
           <div className="flex items-center gap-2 mb-1">
             {[1, 2, 3, 4].map((s) => (
               <div

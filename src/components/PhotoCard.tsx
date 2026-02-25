@@ -4,11 +4,13 @@ import Cropper, { type Area } from "react-easy-crop";
 interface PhotoCardProps {
   dia: string;
   nome: string;
+  setor?: string;
   borderColor: string;
   textColor: string;
   accentColor: string;
   nameAspect?: number;
   nameWidthPct?: number;
+  nameFontSize?: number;
 }
 
 function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<string> {
@@ -39,7 +41,7 @@ function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<string> {
   });
 }
 
-const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, nameAspect = 3, nameWidthPct = 100 }: PhotoCardProps) => {
+const PhotoCard = ({ dia, nome, setor, borderColor, textColor, accentColor, nameAspect = 3, nameWidthPct = 100, nameFontSize = 10 }: PhotoCardProps) => {
   const [image, setImage] = useState<string | null>(null);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -57,9 +59,9 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, nameAspect 
     if (!container || !textEl) return;
 
     // Reset font size
-    textEl.style.fontSize = "10pt";
+    textEl.style.fontSize = `${nameFontSize}pt`;
     
-    let size = 10;
+    let size = nameFontSize;
     const minSize = 5;
     
     // Shrink until text fits or min reached
@@ -67,7 +69,7 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, nameAspect 
       size -= 0.5;
       textEl.style.fontSize = `${size}pt`;
     }
-  }, [nome, nameAspect, nameWidthPct]);
+  }, [nome, setor, nameAspect, nameWidthPct, nameFontSize]);
 
   const handleFile = (file: File) => {
     if (!file.type.startsWith("image/")) return;
@@ -108,7 +110,7 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, nameAspect 
 
 
   return (
-    <div className="photo-card-wrapper flex flex-col items-center w-full relative" style={{ paddingTop: "2.75mm" }}>
+    <div className="photo-card-wrapper flex flex-col items-center w-full relative" style={{ paddingTop: "3.5mm" }}>
 
       {/* Photo frame wrapper - no overflow hidden so circle can overflow */}
       <div
@@ -125,12 +127,12 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, nameAspect 
             color: "white",
             backgroundColor: accentColor,
             border: "0.25mm solid black",
-            width: "5.5mm",
-            height: "5.5mm",
-            fontSize: "10pt",
+            width: "7mm",
+            height: "7mm",
+            fontSize: "14pt",
             lineHeight: 1,
-            top: "-2.75mm",
-            left: "-2.75mm",
+            top: "-3.5mm",
+            left: "-3.5mm",
             zIndex: 30,
           }}
         >
@@ -258,17 +260,32 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, nameAspect 
         <div
           ref={nameTextRef}
           style={{
-            fontSize: "10pt",
+            fontSize: `${nameFontSize}pt`,
             width: "100%",
             overflow: "hidden",
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
             wordBreak: "break-word",
             textOverflow: "ellipsis",
+            lineHeight: 1.1,
           }}
         >
-          {nome}
+          <div style={{
+            display: "-webkit-box",
+            WebkitLineClamp: 1,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+          }}>{nome}</div>
+          {setor && (
+            <div style={{
+              fontSize: "0.75em",
+              fontWeight: 400,
+              opacity: 0.9,
+              marginTop: "1px",
+              display: "-webkit-box",
+              WebkitLineClamp: 1,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+            }}>{setor}</div>
+          )}
         </div>
       </div>
     </div>
