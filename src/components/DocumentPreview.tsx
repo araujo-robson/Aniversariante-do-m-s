@@ -86,10 +86,17 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
 
   const cardAccent = theme.primaryColor;
 
-  // Background with 5mm margins for print safety
-  const bgStyle = bgImageUrl
-    ? `url(${bgImageUrl}) ${BG_MARGIN}mm ${BG_MARGIN}mm / ${210 - BG_MARGIN * 2}mm ${297 - BG_MARGIN * 2}mm no-repeat white`
-    : theme.bgGradient;
+  // Background with 5mm margins for print safety (separate properties for reliability)
+  const hasBgImg = !!bgImageUrl;
+  const bgProps = hasBgImg
+    ? {
+        backgroundColor: "white",
+        backgroundImage: `url(${bgImageUrl})`,
+        backgroundPosition: `${BG_MARGIN}mm ${BG_MARGIN}mm`,
+        backgroundSize: `${210 - BG_MARGIN * 2}mm ${297 - BG_MARGIN * 2}mm`,
+        backgroundRepeat: "no-repeat" as const,
+      }
+    : { background: theme.bgGradient };
 
   const [pageZoom, setPageZoom] = useState(1);
 
@@ -181,7 +188,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
       {/* A4 Page */}
       <div
         className="a4-page print-page mx-auto relative"
-        style={{ background: bgStyle, transform: `scale(${pageZoom})`, transformOrigin: "top center", transition: "transform 0.15s ease-out" }}
+        style={{ ...bgProps, transform: `scale(${pageZoom})`, transformOrigin: "top center", transition: "transform 0.15s ease-out" }}
       >
         {/* Decorative corners - hide when bg image */}
         {!hasBgImage && !customBg && (
