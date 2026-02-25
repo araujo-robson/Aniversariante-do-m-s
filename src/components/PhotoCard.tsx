@@ -8,6 +8,7 @@ interface PhotoCardProps {
   textColor: string;
   accentColor: string;
   nameAspect?: number;
+  nameWidthPct?: number;
 }
 
 function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<string> {
@@ -38,7 +39,7 @@ function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<string> {
   });
 }
 
-const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, nameAspect = 3 }: PhotoCardProps) => {
+const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, nameAspect = 3, nameWidthPct = 100 }: PhotoCardProps) => {
   const [image, setImage] = useState<string | null>(null);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -220,7 +221,7 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, nameAspect 
 
       {/* Name - 3:1 rectangle */}
       <div
-        className="name-rect flex items-center justify-center font-bold text-center mt-0.5 w-full"
+        className="name-rect flex items-center justify-center font-bold text-center mt-0.5"
         style={{
           fontFamily: "var(--font-body)",
           color: "white",
@@ -231,6 +232,7 @@ const PhotoCard = ({ dia, nome, borderColor, textColor, accentColor, nameAspect 
           aspectRatio: `${nameAspect} / 1`,
           padding: "1px 2px",
           overflow: "hidden",
+          width: `${nameWidthPct}%`,
         }}
       >
         <div className="w-full">
