@@ -13,6 +13,7 @@ const Home = () => {
       gradient: "from-pink-500 to-rose-500",
       hoverGradient: "from-pink-600 to-rose-600",
       emoji: "🎂",
+      badge: { label: "Pronto para uso", color: "bg-green-500" },
     },
     {
       title: "Dia das Profissões",
@@ -22,6 +23,7 @@ const Home = () => {
       gradient: "from-blue-500 to-indigo-600",
       hoverGradient: "from-blue-600 to-indigo-700",
       emoji: "💼",
+      badge: { label: "Em desenvolvimento", color: "bg-amber-500" },
     },
   ];
 
@@ -49,6 +51,10 @@ const Home = () => {
             onClick={() => navigate(app.route)}
             className={`group relative bg-gradient-to-br ${app.gradient} hover:${app.hoverGradient} text-white rounded-3xl p-10 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] cursor-pointer`}
           >
+            {/* Badge */}
+            <span className={`absolute top-4 right-4 ${app.badge.color} text-white text-xs font-bold px-3 py-1 rounded-full shadow-md`}>
+              {app.badge.label}
+            </span>
             <div className="text-5xl mb-4">{app.emoji}</div>
             <app.icon size={48} className="mb-4 opacity-90" />
             <h2 className="text-2xl font-bold mb-2" style={{ fontFamily: "var(--font-display)" }}>
