@@ -35,6 +35,7 @@ const defaultBgImages: Record<string, string> = {
 function getMaxCols(count: number): number {
   if (count <= 20) return 5;
   if (count <= 24) return 6;
+  if (count < 28) return 6;
   return 7;
 }
 
