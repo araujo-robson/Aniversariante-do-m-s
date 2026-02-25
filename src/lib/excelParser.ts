@@ -1,4 +1,4 @@
-import * as XLSX from "xlsx";
+import readXlsxFile from "read-excel-file/browser";
 
 export interface BirthdayPerson {
   dia: string;
@@ -7,36 +7,40 @@ export interface BirthdayPerson {
   image?: string;
 }
 
-export function parseExcelFile(file: File): Promise<BirthdayPerson[]> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const data = new Uint8Array(e.target?.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const json = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet);
+export async function parseExcelFile(file: File): Promise<BirthdayPerson[]> {
+  try {
+    const rows = await readXlsxFile(file);
 
-        const people: BirthdayPerson[] = json.map((row) => {
-          const dia = String(
-            row["Dia"] ?? row["dia"] ?? row["DIA"] ?? ""
-          ).trim();
-          const nome = String(
-            row["Nome"] ?? row["nome"] ?? row["NOME"] ?? ""
-          ).trim();
-          const setor = String(
-            row["Setor"] ?? row["setor"] ?? row["SETOR"] ?? ""
-          ).trim();
-          return { dia, nome, setor };
-        }).filter((p) => p.dia && p.nome);
+    if (rows.length < 2) {
+      return [];
+    }
 
-        resolve(people);
-      } catch {
-        reject(new Error("Erro ao ler a planilha. Verifique o formato."));
+    // Find column indices from header row
+    const header = rows[0].map((cell) => String(cell ?? "").trim().toLowerCase());
+    const diaIdx = header.findIndex((h) => h === "dia");
+    const nomeIdx = header.findIndex((h) => h === "nome");
+    const setorIdx = header.findIndex((h) => h === "setor");
+
+    if (nomeIdx === -1) {
+      throw new Error("Coluna 'Nome' não encontrada na planilha.");
+    }
+
+    const people: BirthdayPerson[] = [];
+
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+      const dia = diaIdx >= 0 ? String(row[diaIdx] ?? "").trim() : "";
+      const nome = nomeIdx >= 0 ? String(row[nomeIdx] ?? "").trim() : "";
+      const setor = setorIdx >= 0 ? String(row[setorIdx] ?? "").trim() : "";
+
+      if (dia && nome) {
+        people.push({ dia, nome, setor });
       }
-    };
-    reader.onerror = () => reject(new Error("Erro ao ler o arquivo."));
-    reader.readAsArrayBuffer(file);
-  });
+    }
+
+    return people;
+  } catch (err) {
+    if (err instanceof Error) throw err;
+    throw new Error("Erro ao ler a planilha. Verifique o formato.");
+  }
 }
