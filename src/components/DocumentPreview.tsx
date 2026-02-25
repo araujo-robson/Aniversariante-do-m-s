@@ -125,7 +125,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
           </div>
           <div className="flex items-center gap-3">
             <label className="text-sm font-medium whitespace-nowrap">📏 Largura Nome:</label>
-            <Slider value={[nameWidthPct]} onValueChange={([v]) => setNameWidthPct(v)} min={50} max={100} step={1} className="flex-1" />
+            <Slider value={[nameWidthPct]} onValueChange={([v]) => setNameWidthPct(v)} min={50} max={125} step={1} className="flex-1" />
             <span className="text-sm text-muted-foreground w-12 text-right">{nameWidthPct}%</span>
           </div>
         </div>
