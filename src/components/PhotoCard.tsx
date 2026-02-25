@@ -11,11 +11,12 @@ interface PhotoCardProps {
   nameWidthPct?: number;
   nameFontSize?: number;
   storageKey?: string;
+  onNameChange?: (nome: string, setor: string) => void;
 }
 
 const PhotoCard = ({
   dia, nome, setor, borderColor, textColor, accentColor,
-  nameAspect = 3, nameWidthPct = 100, nameFontSize = 10, storageKey,
+  nameAspect = 3, nameWidthPct = 100, nameFontSize = 10, storageKey, onNameChange,
 }: PhotoCardProps) => {
   // Load saved state from localStorage
   const savedState = storageKey ? (() => {
@@ -29,6 +30,9 @@ const PhotoCard = ({
   const [imgOffset, setImgOffset] = useState({ x: savedState?.offsetX || 0, y: savedState?.offsetY || 0 });
   const [imgScale, setImgScale] = useState(savedState?.scale || 1);
   const [isDragging, setIsDragging] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editNome, setEditNome] = useState(nome);
+  const [editSetor, setEditSetor] = useState(setor || "");
   const dragStartRef = useRef({ x: 0, y: 0, offsetX: 0, offsetY: 0 });
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -221,9 +225,45 @@ const PhotoCard = ({
             wordBreak: "break-word", textOverflow: "ellipsis", lineHeight: 1.1,
           }}
         >
-          <div style={{ display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{nome}</div>
-          {setor && (
-            <div style={{ fontSize: "1em", fontWeight: 700, opacity: 0.9, marginTop: "1px", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{setor}</div>
+          {isEditingName ? (
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "2px" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <input
+                autoFocus
+                value={editNome}
+                onChange={(e) => setEditNome(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") { onNameChange?.(editNome, editSetor); setIsEditingName(false); }
+                  if (e.key === "Escape") { setEditNome(nome); setEditSetor(setor || ""); setIsEditingName(false); }
+                }}
+                style={{ background: "rgba(255,255,255,0.9)", color: "#000", border: "1px solid #666", borderRadius: "2px", fontSize: "inherit", fontFamily: "inherit", padding: "1px 3px", width: "100%", textAlign: "center" }}
+                placeholder="Nome"
+              />
+              <input
+                value={editSetor}
+                onChange={(e) => setEditSetor(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") { onNameChange?.(editNome, editSetor); setIsEditingName(false); }
+                  if (e.key === "Escape") { setEditNome(nome); setEditSetor(setor || ""); setIsEditingName(false); }
+                }}
+                onBlur={() => { onNameChange?.(editNome, editSetor); setIsEditingName(false); }}
+                style={{ background: "rgba(255,255,255,0.9)", color: "#000", border: "1px solid #666", borderRadius: "2px", fontSize: "inherit", fontFamily: "inherit", padding: "1px 3px", width: "100%", textAlign: "center" }}
+                placeholder="Setor"
+              />
+            </div>
+          ) : (
+            <div
+              onClick={(e) => { e.stopPropagation(); setEditNome(nome); setEditSetor(setor || ""); setIsEditingName(true); }}
+              style={{ cursor: "text" }}
+              title="Clique para editar"
+            >
+              <div style={{ display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{nome}</div>
+              {setor && (
+                <div style={{ fontSize: "1em", fontWeight: 700, opacity: 0.9, marginTop: "1px", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{setor}</div>
+              )}
+            </div>
           )}
         </div>
       </div>

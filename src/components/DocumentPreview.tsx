@@ -66,8 +66,13 @@ function getMaxCols(count: number): number {
   return 7;
 }
 
-const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps) => {
+const DocumentPreview = ({ month, theme, people: initialPeople, onBack }: DocumentPreviewProps) => {
   const navigate = useNavigate();
+  const [people, setPeople] = useState<BirthdayPerson[]>(initialPeople);
+
+  const handleNameChange = (index: number, nome: string, setor: string) => {
+    setPeople(prev => prev.map((p, i) => i === index ? { ...p, nome, setor } : p));
+  };
 
   // Load saved custom bg from localStorage
   const savedBg = (() => {
@@ -293,6 +298,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
                       nameWidthPct={nameWidthPct}
                       nameFontSize={nameFontSize}
                       storageKey={`${month}-${index}`}
+                      onNameChange={(n, s) => handleNameChange(index, n, s)}
                     />
                   ))}
                 </div>
@@ -321,6 +327,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
                           nameWidthPct={nameWidthPct}
                           nameFontSize={nameFontSize}
                           storageKey={`${month}-${globalIndex}`}
+                          onNameChange={(n, s) => handleNameChange(globalIndex, n, s)}
                         />
                       </div>
                     );
