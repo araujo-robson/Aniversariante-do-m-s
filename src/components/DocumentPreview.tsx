@@ -71,7 +71,7 @@ const DocumentPreview = ({ month, theme, people, onBack }: DocumentPreviewProps)
   const cardAccent = theme.primaryColor;
 
   return (
-    <div className="min-h-screen py-8 px-4" style={{ background: "hsl(220 14% 92%)" }}>
+    <div className="print-page-wrapper min-h-screen py-8 px-4" style={{ background: "hsl(220 14% 92%)" }}>
       {/* Toolbar */}
       <div className="no-print max-w-[210mm] mx-auto mb-4 flex flex-col gap-3">
         <div className="flex items-center justify-between">
