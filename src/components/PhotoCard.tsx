@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect, type DragEvent, type MouseEvent, type KeyboardEvent } from "react";
 import { compressImage } from "@/lib/imageCompressor";
+import { removeBackground } from "@/lib/removeBackground";
 
 interface PhotoCardProps {
   dia: string;
