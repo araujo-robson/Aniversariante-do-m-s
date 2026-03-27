@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect, type DragEvent, type MouseEvent, type KeyboardEvent } from "react";
 import { compressImage } from "@/lib/imageCompressor";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PhotoCardProps {
   dia: string;
@@ -31,6 +32,7 @@ const PhotoCard = ({
   const [imgOffset, setImgOffset] = useState({ x: savedState?.offsetX || 0, y: savedState?.offsetY || 0 });
   const [imgScale, setImgScale] = useState(savedState?.scale || 1);
   const [isDragging, setIsDragging] = useState(false);
+  const [removingBg, setRemovingBg] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingDay, setIsEditingDay] = useState(false);
   const [editNome, setEditNome] = useState(nome);
@@ -143,6 +145,26 @@ const PhotoCard = ({
     if (storageKey) localStorage.removeItem(`photocard-${storageKey}`);
   };
 
+  const handleRemoveBg = async () => {
+    if (!image || removingBg) return;
+    setRemovingBg(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('remove-bg', {
+        body: { image_base64: image },
+      });
+      if (error) throw error;
+      if (data?.result) {
+        setImage(data.result);
+      } else if (data?.error) {
+        alert(`Erro: ${data.error}`);
+      }
+    } catch (err: any) {
+      alert(`Erro ao remover fundo: ${err.message || err}`);
+    } finally {
+      setRemovingBg(false);
+    }
+  };
+
   return (
     <div className="photo-card-wrapper flex flex-col items-center w-full relative" style={{ paddingTop: "4.25mm" }}>
       <div className="relative w-full" style={{ aspectRatio: "3 / 4" }}>
@@ -221,6 +243,16 @@ const PhotoCard = ({
                 title="Remover imagem"
               >
                 ✕
+              </button>
+              <button
+                className="absolute top-0.5 right-7 text-white bg-black/60 hover:bg-blue-600 rounded-full w-5 h-5 flex items-center justify-center no-print"
+                style={{ fontSize: "10px", zIndex: 40, pointerEvents: "auto" }}
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={(e) => { e.stopPropagation(); handleRemoveBg(); }}
+                title="Remover fundo"
+                disabled={removingBg}
+              >
+                {removingBg ? "⏳" : "🪄"}
               </button>
             </>
           )}
