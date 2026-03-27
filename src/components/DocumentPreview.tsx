@@ -61,9 +61,8 @@ const defaultBgImages: Record<string, string> = {
 };
 
 function getMaxCols(count: number): number {
-  if (count <= 24) return 6;
-  if (count < 28) return 6;
-  return 7;
+  if (count >= 25) return 7;
+  return 6;
 }
 
 const DocumentPreview = ({ month, theme, people: initialPeople, onBack }: DocumentPreviewProps) => {
