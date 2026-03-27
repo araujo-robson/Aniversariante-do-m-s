@@ -229,11 +229,12 @@ const PhotoCard = ({
                 src={image}
                 alt={nome}
                 draggable={false}
-                className="absolute w-full h-full object-cover select-none print-color-adjust"
+                className="absolute w-full h-full object-cover select-none"
                 style={{
                   transform: `translate(${imgOffset.x}px, ${imgOffset.y}px) scale(${imgScale})`,
                   transition: isDragging ? "none" : "transform 0.15s ease-out",
                   transformOrigin: "center center",
+                  filter: colorAdjust ? "brightness(1.08) contrast(1.06) saturate(1.15)" : "none",
                 }}
               />
               <button
