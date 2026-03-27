@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect, type DragEvent, type MouseEvent, type KeyboardEvent } from "react";
+import { compressImage } from "@/lib/imageCompressor";
 
 interface PhotoCardProps {
   dia: string;
