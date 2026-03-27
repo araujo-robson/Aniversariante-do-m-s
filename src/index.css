@@ -112,10 +112,6 @@
   button, input, .crop-container {
     pointer-events: none;
   }
-  /* Auto color adjustment for printed photos */
-  .print-color-adjust {
-    filter: brightness(1.08) contrast(1.06) saturate(1.15) !important;
-  }
 }
 
 /* A4 preview - Portrait */

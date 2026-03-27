@@ -33,6 +33,7 @@ const PhotoCard = ({
   const [imgScale, setImgScale] = useState(savedState?.scale || 1);
   const [isDragging, setIsDragging] = useState(false);
   const [removingBg, setRemovingBg] = useState(false);
+  const [colorAdjust, setColorAdjust] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingDay, setIsEditingDay] = useState(false);
   const [editNome, setEditNome] = useState(nome);
@@ -228,11 +229,12 @@ const PhotoCard = ({
                 src={image}
                 alt={nome}
                 draggable={false}
-                className="absolute w-full h-full object-cover select-none print-color-adjust"
+                className="absolute w-full h-full object-cover select-none"
                 style={{
                   transform: `translate(${imgOffset.x}px, ${imgOffset.y}px) scale(${imgScale})`,
                   transition: isDragging ? "none" : "transform 0.15s ease-out",
                   transformOrigin: "center center",
+                  filter: colorAdjust ? "brightness(1.08) contrast(1.06) saturate(1.15)" : "none",
                 }}
               />
               <button
@@ -253,6 +255,15 @@ const PhotoCard = ({
                 disabled={removingBg}
               >
                 {removingBg ? "⏳" : "🪄"}
+              </button>
+              <button
+                className={`absolute top-0.5 right-[3.25rem] text-white rounded-full w-5 h-5 flex items-center justify-center no-print ${colorAdjust ? "bg-green-600 hover:bg-green-700" : "bg-black/60 hover:bg-amber-600"}`}
+                style={{ fontSize: "10px", zIndex: 40, pointerEvents: "auto" }}
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={(e) => { e.stopPropagation(); setColorAdjust(prev => !prev); }}
+                title={colorAdjust ? "Desativar ajuste de cor" : "Ajuste de cor automático"}
+              >
+                🎨
               </button>
             </>
           )}
