@@ -256,6 +256,15 @@ const PhotoCard = ({
               >
                 {removingBg ? "⏳" : "🪄"}
               </button>
+              <button
+                className={`absolute top-0.5 right-[3.25rem] text-white rounded-full w-5 h-5 flex items-center justify-center no-print ${colorAdjust ? "bg-green-600 hover:bg-green-700" : "bg-black/60 hover:bg-amber-600"}`}
+                style={{ fontSize: "10px", zIndex: 40, pointerEvents: "auto" }}
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={(e) => { e.stopPropagation(); setColorAdjust(prev => !prev); }}
+                title={colorAdjust ? "Desativar ajuste de cor" : "Ajuste de cor automático"}
+              >
+                🎨
+              </button>
             </>
           )}
 
