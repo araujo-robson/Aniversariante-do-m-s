@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect, type DragEvent, type MouseEvent, type KeyboardEvent } from "react";
 import { compressImage } from "@/lib/imageCompressor";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PhotoCardProps {
   dia: string;
