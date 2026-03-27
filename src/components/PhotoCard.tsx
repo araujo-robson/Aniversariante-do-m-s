@@ -145,6 +145,26 @@ const PhotoCard = ({
     if (storageKey) localStorage.removeItem(`photocard-${storageKey}`);
   };
 
+  const handleRemoveBg = async () => {
+    if (!image || removingBg) return;
+    setRemovingBg(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('remove-bg', {
+        body: { image_base64: image },
+      });
+      if (error) throw error;
+      if (data?.result) {
+        setImage(data.result);
+      } else if (data?.error) {
+        alert(`Erro: ${data.error}`);
+      }
+    } catch (err: any) {
+      alert(`Erro ao remover fundo: ${err.message || err}`);
+    } finally {
+      setRemovingBg(false);
+    }
+  };
+
   return (
     <div className="photo-card-wrapper flex flex-col items-center w-full relative" style={{ paddingTop: "4.25mm" }}>
       <div className="relative w-full" style={{ aspectRatio: "3 / 4" }}>
