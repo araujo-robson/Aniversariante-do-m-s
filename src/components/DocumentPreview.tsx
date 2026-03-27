@@ -3,9 +3,11 @@ import type { MonthTheme } from "@/lib/monthThemes";
 import type { BirthdayPerson } from "@/lib/excelParser";
 import { exportProject } from "@/lib/projectExport";
 import PhotoCard from "@/components/PhotoCard";
+import { compressImage } from "@/lib/imageCompressor";
 import logo from "@/assets/logo.png";
 import fevereiroBg from "@/assets/fevereiro-bg.png";
 import marcoBg from "@/assets/marco-bg.png";
+import abrilBg from "@/assets/abril-bg.png";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Printer, ArrowLeft, ImagePlus, Home, Download } from "lucide-react";
@@ -55,6 +57,7 @@ const BG_HEIGHT_MM = 297 - BG_MARGIN_MM * 2; // 287mm
 const defaultBgImages: Record<string, string> = {
   fevereiro: fevereiroBg,
   marco: marcoBg,
+  abril: abrilBg,
 };
 
 function getMaxCols(count: number): number {
@@ -93,15 +96,21 @@ const DocumentPreview = ({ month, theme, people: initialPeople, onBack }: Docume
   const hasBgImage = !!theme.bgImage;
   const bgImageUrl = customBg || (theme.bgImage ? defaultBgImages[theme.bgImage] : null);
 
-  const handleBgUpload = (file: File) => {
+  const handleBgUpload = async (file: File) => {
     if (!file.type.startsWith("image/")) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const data = e.target?.result as string;
-      setCustomBg(data);
-      try { localStorage.setItem(`bg-custom-${month}`, data); } catch { /* full */ }
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressImage(file, 1400, 0.75);
+      setCustomBg(compressed);
+      try { localStorage.setItem(`bg-custom-${month}`, compressed); } catch { /* full */ }
+    } catch {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const data = e.target?.result as string;
+        setCustomBg(data);
+        try { localStorage.setItem(`bg-custom-${month}`, data); } catch { /* full */ }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const [showExportDialog, setShowExportDialog] = useState(false);

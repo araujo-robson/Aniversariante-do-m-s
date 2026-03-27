@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect, type DragEvent, type MouseEvent, type KeyboardEvent } from "react";
+import { compressImage } from "@/lib/imageCompressor";
 
 interface PhotoCardProps {
   dia: string;
@@ -64,15 +65,23 @@ const PhotoCard = ({
     }
   }, [nome, setor, nameAspect, nameWidthPct, nameFontSize]);
 
-  const handleFile = (file: File) => {
+  const handleFile = async (file: File) => {
     if (!file.type.startsWith("image/")) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setImage(e.target?.result as string);
+    try {
+      const compressed = await compressImage(file, 800, 0.7);
+      setImage(compressed);
       setImgOffset({ x: 0, y: 0 });
       setImgScale(1);
-    };
-    reader.readAsDataURL(file);
+    } catch {
+      // Fallback to original
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImage(e.target?.result as string);
+        setImgOffset({ x: 0, y: 0 });
+        setImgScale(1);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const onDrop = (e: DragEvent) => {
