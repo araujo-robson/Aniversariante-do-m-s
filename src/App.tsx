@@ -7,6 +7,7 @@ import Home from "./pages/Home";
 import Aniversariantes from "./pages/Aniversariantes";
 import DiaDasProfissoes from "./pages/DiaDasProfissoes";
 import NotFound from "./pages/NotFound";
+import WhatsNewDialog from "./components/WhatsNewDialog";
 
 const queryClient = new QueryClient();
 
