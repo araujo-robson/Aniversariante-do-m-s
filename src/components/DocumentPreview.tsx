@@ -96,15 +96,21 @@ const DocumentPreview = ({ month, theme, people: initialPeople, onBack }: Docume
   const hasBgImage = !!theme.bgImage;
   const bgImageUrl = customBg || (theme.bgImage ? defaultBgImages[theme.bgImage] : null);
 
-  const handleBgUpload = (file: File) => {
+  const handleBgUpload = async (file: File) => {
     if (!file.type.startsWith("image/")) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const data = e.target?.result as string;
-      setCustomBg(data);
-      try { localStorage.setItem(`bg-custom-${month}`, data); } catch { /* full */ }
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressImage(file, 1400, 0.75);
+      setCustomBg(compressed);
+      try { localStorage.setItem(`bg-custom-${month}`, compressed); } catch { /* full */ }
+    } catch {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const data = e.target?.result as string;
+        setCustomBg(data);
+        try { localStorage.setItem(`bg-custom-${month}`, data); } catch { /* full */ }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const [showExportDialog, setShowExportDialog] = useState(false);
