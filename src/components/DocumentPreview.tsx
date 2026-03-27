@@ -57,6 +57,7 @@ const BG_HEIGHT_MM = 297 - BG_MARGIN_MM * 2; // 287mm
 const defaultBgImages: Record<string, string> = {
   fevereiro: fevereiroBg,
   marco: marcoBg,
+  abril: abrilBg,
 };
 
 function getMaxCols(count: number): number {
