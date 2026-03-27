@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect, type DragEvent, type MouseEvent, type KeyboardEvent } from "react";
 import { compressImage } from "@/lib/imageCompressor";
+import { removeBackground } from "@/lib/removeBackground";
 
 interface PhotoCardProps {
   dia: string;
@@ -221,6 +222,22 @@ const PhotoCard = ({
                 title="Remover imagem"
               >
                 ✕
+              </button>
+              <button
+                className="absolute top-0.5 left-0.5 text-white bg-black/60 hover:bg-blue-600 rounded-full w-5 h-5 flex items-center justify-center no-print"
+                style={{ fontSize: "9px", zIndex: 40, pointerEvents: "auto" }}
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  if (!image) return;
+                  try {
+                    const result = await removeBackground(image);
+                    setImage(result);
+                  } catch { /* ignore */ }
+                }}
+                title="Remover fundo (chroma key)"
+              >
+                🪄
               </button>
             </>
           )}
