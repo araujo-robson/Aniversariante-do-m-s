@@ -32,6 +32,7 @@ const PhotoCard = ({
   const [imgOffset, setImgOffset] = useState({ x: savedState?.offsetX || 0, y: savedState?.offsetY || 0 });
   const [imgScale, setImgScale] = useState(savedState?.scale || 1);
   const [isDragging, setIsDragging] = useState(false);
+  const [removingBg, setRemovingBg] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingDay, setIsEditingDay] = useState(false);
   const [editNome, setEditNome] = useState(nome);
