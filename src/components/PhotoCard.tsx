@@ -244,6 +244,16 @@ const PhotoCard = ({
               >
                 ✕
               </button>
+              <button
+                className="absolute top-0.5 right-7 text-white bg-black/60 hover:bg-blue-600 rounded-full w-5 h-5 flex items-center justify-center no-print"
+                style={{ fontSize: "10px", zIndex: 40, pointerEvents: "auto" }}
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={(e) => { e.stopPropagation(); handleRemoveBg(); }}
+                title="Remover fundo"
+                disabled={removingBg}
+              >
+                {removingBg ? "⏳" : "🪄"}
+              </button>
             </>
           )}
 
