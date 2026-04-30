@@ -8,6 +8,7 @@ import logo from "@/assets/logo.png";
 import fevereiroBg from "@/assets/fevereiro-bg.png";
 import marcoBg from "@/assets/marco-bg.png";
 import abrilBg from "@/assets/abril-bg.jpg";
+import maioBg from "@/assets/maio-bg.jpg";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Printer, ArrowLeft, ImagePlus, Home, Download } from "lucide-react";
@@ -58,6 +59,7 @@ const defaultBgImages: Record<string, string> = {
   fevereiro: fevereiroBg,
   marco: marcoBg,
   abril: abrilBg,
+  maio: maioBg,
 };
 
 function getMaxCols(count: number): number {
