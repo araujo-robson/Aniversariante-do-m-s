@@ -229,7 +229,7 @@ const PhotoCard = ({
                 src={image}
                 alt={nome}
                 draggable={false}
-                className="absolute w-full h-full object-cover select-none"
+                className="absolute w-full h-full object-contain select-none"
                 style={{
                   transform: `translate(${imgOffset.x}px, ${imgOffset.y}px) scale(${imgScale})`,
                   transition: isDragging ? "none" : "transform 0.15s ease-out",
