@@ -10,6 +10,13 @@ import marcoBg from "@/assets/marco-bg.png";
 import abrilBg from "@/assets/abril-bg.jpg";
 import maioBg from "@/assets/maio-bg.jpg";
 import junhoBg from "@/assets/junho-bg.jpg";
+import julhoBg from "@/assets/julho-bg.jpg";
+import agostoBg from "@/assets/agosto-bg.jpg";
+import setembroBg from "@/assets/setembro-bg.jpg";
+import outubroBg from "@/assets/outubro-bg.jpg";
+import novembroBg from "@/assets/novembro-bg.jpg";
+import dezembroBg from "@/assets/dezembro-bg.jpg";
+import janeiroBg from "@/assets/janeiro-bg.jpg";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Printer, ArrowLeft, ImagePlus, Home, Download } from "lucide-react";
@@ -62,6 +69,13 @@ const defaultBgImages: Record<string, string> = {
   abril: abrilBg,
   maio: maioBg,
   junho: junhoBg,
+  julho: julhoBg,
+  agosto: agostoBg,
+  setembro: setembroBg,
+  outubro: outubroBg,
+  novembro: novembroBg,
+  dezembro: dezembroBg,
+  janeiro: janeiroBg,
 };
 
 function getMaxCols(count: number): number {
