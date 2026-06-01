@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect, type DragEvent, type MouseEvent, type KeyboardEvent } from "react";
 import { compressImage } from "@/lib/imageCompressor";
 import { supabase } from "@/integrations/supabase/client";
+import { getImage, setImage as persistImage, removeImage } from "@/lib/imageStorage";
 
 interface PhotoCardProps {
   dia: string;
@@ -20,17 +21,10 @@ const PhotoCard = ({
   dia, nome, setor, borderColor, textColor, accentColor,
   nameAspect = 3, nameWidthPct = 100, nameFontSize = 10, storageKey, onNameChange,
 }: PhotoCardProps) => {
-  // Load saved state from localStorage
-  const savedState = storageKey ? (() => {
-    try {
-      const saved = localStorage.getItem(`photocard-${storageKey}`);
-      return saved ? JSON.parse(saved) : null;
-    } catch { return null; }
-  })() : null;
-
-  const [image, setImage] = useState<string | null>(savedState?.image || null);
-  const [imgOffset, setImgOffset] = useState({ x: savedState?.offsetX || 0, y: savedState?.offsetY || 0 });
-  const [imgScale, setImgScale] = useState(savedState?.scale || 1);
+  const [image, setImage] = useState<string | null>(null);
+  const [imgOffset, setImgOffset] = useState({ x: 0, y: 0 });
+  const [imgScale, setImgScale] = useState(1);
+  const [loaded, setLoaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [removingBg, setRemovingBg] = useState(false);
   const [colorAdjust, setColorAdjust] = useState(false);
@@ -45,15 +39,30 @@ const PhotoCard = ({
   const nameContainerRef = useRef<HTMLDivElement>(null);
   const nameTextRef = useRef<HTMLDivElement>(null);
 
-  // Save to localStorage
+  // Load saved state (IndexedDB with legacy localStorage fallback)
   useEffect(() => {
-    if (!storageKey || !image) return;
-    try {
-      localStorage.setItem(`photocard-${storageKey}`, JSON.stringify({
-        image, offsetX: imgOffset.x, offsetY: imgOffset.y, scale: imgScale,
-      }));
-    } catch { /* localStorage full */ }
-  }, [storageKey, image, imgOffset, imgScale]);
+    let cancelled = false;
+    if (!storageKey) { setLoaded(true); return; }
+    getImage(storageKey).then((raw) => {
+      if (cancelled || !raw) { setLoaded(true); return; }
+      try {
+        const parsed = JSON.parse(raw);
+        setImage(parsed.image || null);
+        setImgOffset({ x: parsed.offsetX || 0, y: parsed.offsetY || 0 });
+        setImgScale(parsed.scale || 1);
+      } catch { /* invalid */ }
+      setLoaded(true);
+    });
+    return () => { cancelled = true; };
+  }, [storageKey]);
+
+  // Save to IndexedDB
+  useEffect(() => {
+    if (!storageKey || !image || !loaded) return;
+    persistImage(storageKey, JSON.stringify({
+      image, offsetX: imgOffset.x, offsetY: imgOffset.y, scale: imgScale,
+    })).catch((e) => console.error("Falha ao salvar imagem:", e));
+  }, [storageKey, image, imgOffset, imgScale, loaded]);
 
   // Auto-shrink font size
   useEffect(() => {
@@ -143,7 +152,7 @@ const PhotoCard = ({
     setImage(null);
     setImgOffset({ x: 0, y: 0 });
     setImgScale(1);
-    if (storageKey) localStorage.removeItem(`photocard-${storageKey}`);
+    if (storageKey) removeImage(storageKey);
   };
 
   const handleRemoveBg = async () => {
