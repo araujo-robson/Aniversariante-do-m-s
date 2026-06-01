@@ -119,8 +119,8 @@ const DocumentPreview = ({ month, theme, people: initialPeople, onBack }: Docume
     setShowExportDialog(true);
   };
 
-  const handleExportAndPrint = () => {
-    exportProject(month, people);
+  const handleExportAndPrint = async () => {
+    await exportProject(month, people);
     setShowExportDialog(false);
     setTimeout(() => window.print(), 300);
   };
