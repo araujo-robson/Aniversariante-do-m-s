@@ -119,6 +119,7 @@ export const monthThemes: Record<number, MonthTheme> = {
     primaryColor: "#BF8A30",
     secondaryColor: "#FFD54F",
     bgGradient: "linear-gradient(135deg, #FFF8E1 0%, #FFECB3 50%, #FFFDE7 100%)",
+    bgImage: "agosto",
     cardBorder: "#BF8A30",
     headerBg: "linear-gradient(135deg, #BF8A30 0%, #D4A84B 50%, #BF8A30 100%)",
     textColor: "#5D4037",
