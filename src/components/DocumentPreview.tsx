@@ -69,6 +69,13 @@ const defaultBgImages: Record<string, string> = {
   abril: abrilBg,
   maio: maioBg,
   junho: junhoBg,
+  julho: julhoBg,
+  agosto: agostoBg,
+  setembro: setembroBg,
+  outubro: outubroBg,
+  novembro: novembroBg,
+  dezembro: dezembroBg,
+  janeiro: janeiroBg,
 };
 
 function getMaxCols(count: number): number {
