@@ -7,9 +7,8 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import whatsNewImage from "@/assets/whats-new-v1.3.png";
 
-const CURRENT_VERSION = "1.3";
+const CURRENT_VERSION = "1.4";
 
 const WhatsNewDialog = () => {
   const [open, setOpen] = useState(false);
@@ -38,21 +37,14 @@ const WhatsNewDialog = () => {
 
         <div className="space-y-3 text-sm">
           <div>
-            <span className="font-semibold text-primary">✨ Novidade:</span>{" "}
-            Dois novos botões nos cards de foto — <strong>Remoção de Fundo</strong> e{" "}
-            <strong>Ajuste Automático de Cor</strong> para impressão.
+            <span className="font-semibold text-primary">🔧 Correção:</span>{" "}
+            Resolvido o problema que fazia imagens desaparecerem ao exportar ou recarregar o projeto. Agora todas as fotos são armazenadas de forma segura no IndexedDB, eliminando o limite de 5 MB do navegador e garantindo que suas imagens sejam preservadas integralmente nas exportações e importações.
           </div>
           <div>
             <span className="font-semibold text-primary">⚡ Melhoria:</span>{" "}
-            Compactação automática de mídia, tornando o aplicativo mais leve e rápido.
+            Exportação e importação de projetos totalmente reformuladas para suportar dezenas de fotos em alta qualidade sem perda de dados.
           </div>
         </div>
-
-        <img
-          src={whatsNewImage}
-          alt="Exemplo dos novos botões de remoção de fundo e ajuste de cor"
-          className="w-full rounded-lg border mt-2"
-        />
 
         <Button onClick={handleClose} className="w-full mt-2">
           Continuar
