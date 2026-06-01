@@ -61,6 +61,7 @@ const defaultBgImages: Record<string, string> = {
   marco: marcoBg,
   abril: abrilBg,
   maio: maioBg,
+  junho: junhoBg,
 };
 
 function getMaxCols(count: number): number {
