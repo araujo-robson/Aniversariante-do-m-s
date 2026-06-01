@@ -152,7 +152,7 @@ const PhotoCard = ({
     setImage(null);
     setImgOffset({ x: 0, y: 0 });
     setImgScale(1);
-    if (storageKey) localStorage.removeItem(`photocard-${storageKey}`);
+    if (storageKey) removeImage(storageKey);
   };
 
   const handleRemoveBg = async () => {
