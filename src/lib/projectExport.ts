@@ -1,27 +1,23 @@
 import type { BirthdayPerson } from "./excelParser";
+import { getAllImages, setImage } from "./imageStorage";
 
 export interface ProjectData {
   version: 1;
   month: number;
   people: BirthdayPerson[];
-  images: Record<string, string>; // storageKey -> dataURL
+  images: Record<string, string>; // sub-key (e.g. "0", "1") -> serialized photocard state
   customBg: string | null;
 }
 
 /**
  * Exports current project state (people, images, bg) as a downloadable JSON file.
  */
-export function exportProject(month: number, people: BirthdayPerson[]): void {
-  const images: Record<string, string> = {};
+export async function exportProject(month: number, people: BirthdayPerson[]): Promise<void> {
+  const prefix = `${month}-`;
+  const images = await getAllImages(prefix);
 
-  // Collect all stored images (photocard-{month}-{index}) for this month
-  for (let i = 0; i < people.length; i++) {
-    const key = `photocard-${month}-${i}`;
-    const val = localStorage.getItem(key);
-    if (val) images[`${month}-${i}`] = val;
-  }
-
-  const customBg = localStorage.getItem(`bg-custom-${month}`) || null;
+  let customBg: string | null = null;
+  try { customBg = localStorage.getItem(`bg-custom-${month}`); } catch { /* */ }
 
   const data: ProjectData = {
     version: 1,
@@ -41,8 +37,7 @@ export function exportProject(month: number, people: BirthdayPerson[]): void {
 }
 
 /**
- * Imports a project file and restores images to localStorage.
- * Returns the project data for state restoration.
+ * Imports a project file and restores images to IndexedDB.
  */
 export async function importProject(file: File): Promise<ProjectData> {
   const text = await file.text();
@@ -51,18 +46,12 @@ export async function importProject(file: File): Promise<ProjectData> {
   if (data.version !== 1) throw new Error("Versão de arquivo não suportada.");
   if (!data.month || !data.people?.length) throw new Error("Arquivo inválido.");
 
-  // Restore images to localStorage
-  for (const [key, val] of Object.entries(data.images)) {
-    try {
-      localStorage.setItem(`photocard-${key}`, val);
-    } catch { /* storage full */ }
+  for (const [sub, val] of Object.entries(data.images || {})) {
+    try { await setImage(`${data.month}-${sub}`, val); } catch { /* */ }
   }
 
-  // Restore custom bg
   if (data.customBg) {
-    try {
-      localStorage.setItem(`bg-custom-${data.month}`, data.customBg);
-    } catch { /* storage full */ }
+    try { localStorage.setItem(`bg-custom-${data.month}`, data.customBg); } catch { /* */ }
   }
 
   return data;
