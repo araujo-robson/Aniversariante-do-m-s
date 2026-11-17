@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-const CURRENT_VERSION = "1.4";
+const CURRENT_VERSION = "1.5";
 
 const WhatsNewDialog = () => {
   const [open, setOpen] = useState(false);
@@ -37,12 +37,8 @@ const WhatsNewDialog = () => {
 
         <div className="space-y-3 text-sm">
           <div>
-            <span className="font-semibold text-primary">🔧 Correção:</span>{" "}
-            Resolvido o problema que fazia imagens desaparecerem ao exportar ou recarregar o projeto. Agora todas as fotos são armazenadas de forma segura no IndexedDB, eliminando o limite de 5 MB do navegador e garantindo que suas imagens sejam preservadas integralmente nas exportações e importações.
-          </div>
-          <div>
-            <span className="font-semibold text-primary">⚡ Melhoria:</span>{" "}
-            Exportação e importação de projetos totalmente reformuladas para suportar dezenas de fotos em alta qualidade sem perda de dados.
+            <span className="font-semibold text-primary">✏️ Novidade:</span>{" "}
+            O campo <strong>SETOR</strong> agora é editável, igual ao campo Nome. Basta clicar na linha do setor no cartão, digitar o novo valor e confirmar com Enter — ou clicar fora para salvar. Usar Esc desfaz a alteração.
           </div>
         </div>
 
