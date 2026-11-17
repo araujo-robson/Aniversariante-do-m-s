@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect, type DragEvent, type MouseEvent, type KeyboardEvent } from "react";
+import { useState, useCallback, useRef, useEffect, type DragEvent, type MouseEvent, type KeyboardEvent, type FocusEvent } from "react";
 import { compressImage } from "@/lib/imageCompressor";
 import { supabase } from "@/integrations/supabase/client";
 import { getImage, setImage as persistImage, removeImage } from "@/lib/imageStorage";
@@ -32,12 +32,16 @@ const PhotoCard = ({
   const [isEditingDay, setIsEditingDay] = useState(false);
   const [editNome, setEditNome] = useState(nome);
   const [editSetor, setEditSetor] = useState(setor || "");
+  const [editFocus, setEditFocus] = useState<"nome" | "setor">("nome");
   const [editDia, setEditDia] = useState(dia);
   const dragStartRef = useRef({ x: 0, y: 0, offsetX: 0, offsetY: 0 });
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const nameContainerRef = useRef<HTMLDivElement>(null);
   const nameTextRef = useRef<HTMLDivElement>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
+  const nomeInputRef = useRef<HTMLInputElement>(null);
+  const setorInputRef = useRef<HTMLInputElement>(null);
 
   // Load saved state (IndexedDB with legacy localStorage fallback)
   useEffect(() => {
@@ -76,6 +80,44 @@ const PhotoCard = ({
       textEl.style.fontSize = `${size}pt`;
     }
   }, [nome, setor, nameAspect, nameWidthPct, nameFontSize]);
+
+  // ── Editor de Nome + Setor ──────────────────────────────────────────────
+  const openEditor = (focus: "nome" | "setor") => {
+    setEditNome(nome);
+    setEditSetor(setor || "");
+    setEditFocus(focus);
+    setIsEditingName(true);
+  };
+
+  const commitEdit = () => {
+    onNameChange?.(editNome, editSetor, dia);
+    setIsEditingName(false);
+  };
+
+  const cancelEdit = () => {
+    setEditNome(nome);
+    setEditSetor(setor || "");
+    setIsEditingName(false);
+  };
+
+  const handleEditorKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") { e.preventDefault(); commitEdit(); }
+    if (e.key === "Escape") { e.preventDefault(); cancelEdit(); }
+  };
+
+  // Só fecha ao sair do editor — trocar de Nome para Setor (ou vice-versa) não cancela
+  const handleEditorBlur = (e: FocusEvent<HTMLInputElement>) => {
+    const next = e.relatedTarget as Node | null;
+    if (next && editorRef.current?.contains(next)) return;
+    commitEdit();
+  };
+
+  useEffect(() => {
+    if (!isEditingName) return;
+    const el = editFocus === "setor" ? setorInputRef.current : nomeInputRef.current;
+    el?.focus();
+    el?.select();
+  }, [isEditingName, editFocus]);
 
   const handleFile = async (file: File) => {
     if (!file.type.startsWith("image/")) return;
@@ -303,49 +345,51 @@ const PhotoCard = ({
             wordBreak: "break-word", textOverflow: "ellipsis", lineHeight: 1.1,
           }}
         >
-          {isEditingName ? (
+          <div style={{ cursor: "text" }}>
             <div
-              style={{ display: "flex", flexDirection: "column", gap: "2px" }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <input
-                autoFocus
-                value={editNome}
-                onChange={(e) => setEditNome(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") { onNameChange?.(editNome, editSetor, dia); setIsEditingName(false); }
-                  if (e.key === "Escape") { setEditNome(nome); setEditSetor(setor || ""); setIsEditingName(false); }
-                }}
-                onBlur={() => { onNameChange?.(editNome, editSetor, dia); setIsEditingName(false); }}
-                style={{ background: "rgba(255,255,255,0.9)", color: "#000", border: "1px solid #666", borderRadius: "2px", fontSize: "inherit", fontFamily: "inherit", padding: "1px 3px", width: "100%", textAlign: "center" }}
-                placeholder="Nome"
-              />
-              <input
-                value={editSetor}
-                onChange={(e) => setEditSetor(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") { onNameChange?.(editNome, editSetor, dia); setIsEditingName(false); }
-                  if (e.key === "Escape") { setEditNome(nome); setEditSetor(setor || ""); setIsEditingName(false); }
-                }}
-                onBlur={() => { onNameChange?.(editNome, editSetor, dia); setIsEditingName(false); }}
-                style={{ background: "rgba(255,255,255,0.9)", color: "#000", border: "1px solid #666", borderRadius: "2px", fontSize: "inherit", fontFamily: "inherit", padding: "1px 3px", width: "100%", textAlign: "center" }}
-                placeholder="Setor"
-              />
-            </div>
-          ) : (
-            <div
-              onClick={(e) => { e.stopPropagation(); setEditNome(nome); setEditSetor(setor || ""); setIsEditingName(true); }}
-              style={{ cursor: "text" }}
-              title="Clique para editar"
-            >
-              <div style={{ display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{nome}</div>
-              {setor && (
-                <div style={{ fontSize: "1em", fontWeight: 700, opacity: 0.9, marginTop: "1px", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{setor}</div>
-              )}
-            </div>
-          )}
+              onClick={(e) => { e.stopPropagation(); openEditor("nome"); }}
+              title="Clique para editar o nome"
+              style={{ display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}
+            >{nome}</div>
+            {setor && (
+              <div
+                onClick={(e) => { e.stopPropagation(); openEditor("setor"); }}
+                title="Clique para editar o setor"
+                style={{ fontSize: "1em", fontWeight: 700, opacity: 0.9, marginTop: "1px", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}
+              >{setor}</div>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Editor flutuante: Nome + Setor sempre inteiros, por cima do card */}
+      {isEditingName && (
+        <div
+          ref={editorRef}
+          className="no-print absolute left-0 flex flex-col gap-1 rounded-md border border-black/40 bg-white p-1.5 shadow-lg"
+          style={{ bottom: 0, width: "100%", zIndex: 60 }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <input
+            ref={nomeInputRef}
+            value={editNome}
+            onChange={(e) => setEditNome(e.target.value)}
+            onKeyDown={handleEditorKeyDown}
+            onBlur={handleEditorBlur}
+            placeholder="Nome"
+            style={{ background: "#fff", color: "#000", border: "1px solid #666", borderRadius: "2px", fontSize: "10pt", padding: "2px 4px", width: "100%", textAlign: "center" }}
+          />
+          <input
+            ref={setorInputRef}
+            value={editSetor}
+            onChange={(e) => setEditSetor(e.target.value)}
+            onKeyDown={handleEditorKeyDown}
+            onBlur={handleEditorBlur}
+            placeholder="Setor"
+            style={{ background: "#fff", color: "#000", border: "1px solid #666", borderRadius: "2px", fontSize: "10pt", padding: "2px 4px", width: "100%", textAlign: "center" }}
+          />
+        </div>
+      )}
     </div>
   );
 };
